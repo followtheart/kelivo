@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/models/chat_input_data.dart';
 import '../../../core/models/chat_message.dart';
+import '../../../core/models/execution_plan.dart';
 import '../../../core/models/conversation.dart';
 import '../../../core/models/quick_phrase.dart';
 import '../../../core/models/assistant_regex.dart';
@@ -200,6 +201,7 @@ class HomePageController extends ChangeNotifier {
   Map<String, stream_ctrl.ReasoningData> get reasoning => _streamController.reasoning;
   Map<String, List<stream_ctrl.ReasoningSegmentData>> get reasoningSegments => _streamController.reasoningSegments;
   Map<String, List<ToolUIPart>> get toolParts => _streamController.toolParts;
+  Map<String, ExecutionPlan> get planParts => _streamController.planParts;
 
   /// Lightweight notifier for streaming content updates.
   /// Use this with ValueListenableBuilder in MessageListView to avoid full page rebuilds.

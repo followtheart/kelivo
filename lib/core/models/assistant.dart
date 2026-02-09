@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'assistant_regex.dart';
+import 'execution_plan.dart';
 import 'preset_message.dart';
 
 class Assistant {
@@ -31,6 +32,8 @@ class Assistant {
   final List<PresetMessage> presetMessages;
   // Regex replacement rules
   final List<AssistantRegex> regexRules;
+  // Plan agent mode
+  final PlanMode planMode;
 
   const Assistant({
     required this.id,
@@ -57,6 +60,7 @@ class Assistant {
     this.enableRecentChatsReference = false,
     this.presetMessages = const <PresetMessage>[],
     this.regexRules = const <AssistantRegex>[],
+    this.planMode = PlanMode.never,
   });
 
   Assistant copyWith({
@@ -84,6 +88,7 @@ class Assistant {
     bool? enableRecentChatsReference,
     List<PresetMessage>? presetMessages,
     List<AssistantRegex>? regexRules,
+    PlanMode? planMode,
     bool clearChatModel = false,
     bool clearAvatar = false,
     bool clearTemperature = false,
@@ -118,6 +123,7 @@ class Assistant {
           enableRecentChatsReference ?? this.enableRecentChatsReference,
       presetMessages: presetMessages ?? this.presetMessages,
       regexRules: regexRules ?? this.regexRules,
+      planMode: planMode ?? this.planMode,
     );
   }
 
@@ -146,6 +152,7 @@ class Assistant {
         'enableRecentChatsReference': enableRecentChatsReference,
         'presetMessages': PresetMessage.encodeList(presetMessages),
         'regexRules': regexRules.map((e) => e.toJson()).toList(),
+        'planMode': planMode.name,
     };
 
   static Assistant fromJson(Map<String, dynamic> json) => Assistant(
@@ -213,6 +220,7 @@ class Assistant {
           }
           return const <AssistantRegex>[];
         })(),
+        planMode: _parsePlanMode(json['planMode']),
       );
 
   static String encodeList(List<Assistant> list) => jsonEncode(list.map((e) => e.toJson()).toList());
@@ -223,5 +231,13 @@ class Assistant {
     } catch (_) {
       return const <Assistant>[];
     }
+  }
+
+  static PlanMode _parsePlanMode(dynamic v) {
+    final s = (v ?? '').toString().toLowerCase();
+    for (final e in PlanMode.values) {
+      if (e.name == s) return e;
+    }
+    return PlanMode.never;
   }
 }

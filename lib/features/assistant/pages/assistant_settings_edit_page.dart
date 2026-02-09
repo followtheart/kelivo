@@ -22,6 +22,7 @@ import '../../../shared/widgets/emoji_picker_dialog.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../theme/design_tokens.dart';
 import '../../../core/models/assistant.dart';
+import '../../../core/models/execution_plan.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/providers/mcp_provider.dart';
@@ -1700,6 +1701,22 @@ class _BasicSettingsTabState extends State<_BasicSettingsTab> {
               onChanged: (v) => context
                   .read<AssistantProvider>()
                   .updateAssistant(a.copyWith(streamOutput: v)),
+            ),
+            _iosDivider(context),
+            // Plan Agent mode
+            _iosNavRow(
+              context,
+              icon: Lucide.ListOrdered,
+              label: l10n.assistantEditPlanModeTitle,
+              detailText: _planModeLabel(l10n, a.planMode),
+              onTap: () async {
+                final chosen = await _showPlanModePicker(context, l10n, a.planMode);
+                if (chosen != null && chosen != a.planMode) {
+                  await context.read<AssistantProvider>().updateAssistant(
+                    a.copyWith(planMode: chosen),
+                  );
+                }
+              },
             ),
           ]),
         ),
@@ -6328,6 +6345,7 @@ class _DesktopAssistantBasicPane extends StatefulWidget {
 class _DesktopAssistantBasicPaneState extends State<_DesktopAssistantBasicPane> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _maxTokensCtrl;
+  final ScrollController _scrollCtrl = ScrollController();
   bool _hoverChatModel = false;
   bool _hoverBgChooser = false;
   final GlobalKey _avatarKey = GlobalKey();
@@ -6354,6 +6372,7 @@ class _DesktopAssistantBasicPaneState extends State<_DesktopAssistantBasicPane> 
   void dispose() {
     _nameCtrl.dispose();
     _maxTokensCtrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
@@ -6524,12 +6543,16 @@ class _DesktopAssistantBasicPaneState extends State<_DesktopAssistantBasicPane> 
 
     return Container(
       alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            header(),
+      child: Scrollbar(
+        controller: _scrollCtrl,
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          controller: _scrollCtrl,
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              header(),
             sectionDivider(),
             // Temperature
             Padding(
@@ -6721,6 +6744,30 @@ class _DesktopAssistantBasicPaneState extends State<_DesktopAssistantBasicPane> 
                     value: a.streamOutput,
                     onChanged: (v) => context.read<AssistantProvider>().updateAssistant(a.copyWith(streamOutput: v)),
                   ),
+                  sectionDivider(),
+                  // Plan Agent mode
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () async {
+                      final chosen = await _showPlanModePicker(context, l10n, a.planMode);
+                      if (chosen != null && chosen != a.planMode) {
+                        await context.read<AssistantProvider>().updateAssistant(
+                          a.copyWith(planMode: chosen),
+                        );
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      child: Row(
+                        children: [
+                          Expanded(child: Text(l10n.assistantEditPlanModeTitle, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: cs.onSurface.withOpacity(0.9)))),
+                          Text(_planModeLabel(l10n, a.planMode), style: TextStyle(fontSize: 13, color: cs.onSurface.withOpacity(0.55))),
+                          const SizedBox(width: 6),
+                          Icon(Lucide.ChevronRight, size: 16, color: cs.onSurface.withOpacity(0.35)),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -6870,6 +6917,7 @@ class _DesktopAssistantBasicPaneState extends State<_DesktopAssistantBasicPane> 
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -7132,4 +7180,116 @@ class _DesktopAssistantBasicPaneState extends State<_DesktopAssistantBasicPane> 
       }
     }
   }
+}
+
+// ── Plan Mode helpers ───────────────────────────────────────────────────────
+
+String _planModeLabel(AppLocalizations l10n, PlanMode mode) {
+  switch (mode) {
+    case PlanMode.never:
+      return l10n.assistantEditPlanModeNever;
+    case PlanMode.auto:
+      return l10n.assistantEditPlanModeAuto;
+    case PlanMode.always:
+      return l10n.assistantEditPlanModeAlways;
+  }
+}
+
+Future<PlanMode?> _showPlanModePicker(
+  BuildContext context,
+  AppLocalizations l10n,
+  PlanMode current,
+) async {
+  final cs = Theme.of(context).colorScheme;
+  final platform = Theme.of(context).platform;
+  final isDesktop = platform == TargetPlatform.macOS ||
+      platform == TargetPlatform.linux ||
+      platform == TargetPlatform.windows;
+
+  final options = [
+    (PlanMode.never, l10n.assistantEditPlanModeNever),
+    (PlanMode.auto, l10n.assistantEditPlanModeAuto),
+    (PlanMode.always, l10n.assistantEditPlanModeAlways),
+  ];
+
+  Widget buildOptionList(BuildContext ctx) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: options.map((o) {
+        final selected = o.$1 == current;
+        return ListTile(
+          leading: Icon(
+            selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+            color: selected ? cs.primary : cs.onSurface.withOpacity(0.4),
+            size: 22,
+          ),
+          title: Text(o.$2, style: TextStyle(
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: cs.onSurface,
+          )),
+          onTap: () => Navigator.of(ctx).pop(o.$1),
+        );
+      }).toList(),
+    );
+  }
+
+  if (isDesktop) {
+    return showDialog<PlanMode>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: cs.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                    child: Text(
+                      l10n.assistantEditPlanModeTitle,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  buildOptionList(ctx),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  return showModalBottomSheet<PlanMode>(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (ctx) {
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: Text(
+                  l10n.assistantEditPlanModeTitle,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+              ),
+              buildOptionList(ctx),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

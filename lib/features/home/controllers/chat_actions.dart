@@ -4,14 +4,17 @@ import 'package:provider/provider.dart';
 import '../../../core/models/chat_input_data.dart';
 import '../../../core/models/chat_message.dart';
 import '../../../core/models/conversation.dart';
+import '../../../core/models/execution_plan.dart';
 import '../../../core/models/token_usage.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/settings_provider.dart';
+import '../../../core/services/agent/plan_agent_service.dart';
 import '../../../core/services/api/chat_api_service.dart';
 import '../../../core/services/chat/chat_service.dart';
 import '../../../utils/assistant_regex.dart';
 import '../../../core/models/assistant_regex.dart';
 import '../../../utils/markdown_media_sanitizer.dart';
+import '../../chat/widgets/chat_message_widget.dart';
 import '../services/message_generation_service.dart';
 import 'chat_controller.dart';
 import 'generation_controller.dart';
@@ -100,6 +103,12 @@ class ChatActions {
 
   /// Called when streaming finishes.
   VoidCallback? onStreamFinished;
+
+  /// Called when a plan is created and should be shown in the UI.
+  void Function(String messageId, ExecutionPlan plan)? onPlanCreated;
+
+  /// Called when a plan step status changes.
+  void Function(String messageId, ExecutionPlan plan)? onPlanUpdated;
 
   /// Called when file processing starts.
   VoidCallback? onFileProcessingStarted;
@@ -235,7 +244,7 @@ class ChatActions {
         settings: settings,
       );
 
-      // Execute generation
+      // Execute generation — plan agent or direct
       final ctx = messageGenerationService.buildGenerationContext(
         assistantMessage: assistantMessage,
         prepared: prepared,
@@ -249,7 +258,12 @@ class ChatActions {
         generateTitleOnFinish: true,
       );
 
-      await _executeGeneration(ctx);
+      final planMode = assistant?.planMode ?? PlanMode.never;
+      if (planMode != PlanMode.never && ctx.toolDefs.isNotEmpty) {
+        await _executeWithPlan(ctx, planMode);
+      } else {
+        await _executeGeneration(ctx);
+      }
       return ChatActionResult.success(assistantMessage);
     } catch (e) {
       // Ensure file processing indicator is cleared on error
@@ -454,6 +468,178 @@ class ChatActions {
     } else {
       _setConversationLoading(cid, false);
     }
+  }
+
+  // ============================================================================
+  // Plan Agent Execution
+  // ============================================================================
+
+  /// Execute generation through the plan agent path.
+  ///
+  /// 1. Generate plan via LLM
+  /// 2. Execute plan step-by-step
+  /// 3. Summarise results
+  /// 4. Write final response into the assistant message
+  Future<void> _executeWithPlan(
+      stream_ctrl.GenerationContext ctx, PlanMode planMode) async {
+    final state = stream_ctrl.StreamingState(ctx);
+    final conversationId = state.conversationId;
+    final messageId = state.messageId;
+
+    streamController.markStreamingStarted(messageId);
+
+    try {
+      const planAgent = PlanAgentService();
+
+      // --- Check if planning is actually needed ---
+      final needsPlan = await planAgent.shouldPlan(
+        messages: ctx.apiMessages,
+        toolDefinitions: ctx.toolDefs,
+        planMode: planMode,
+        config: ctx.config,
+        modelId: ctx.modelId,
+      );
+
+      if (!needsPlan) {
+        // Fall through to normal generation.
+        await _executeGeneration(ctx);
+        return;
+      }
+
+      // --- Extract user goal ---
+      final userGoal = _extractUserGoal(ctx.apiMessages);
+
+      // --- Generate plan ---
+      final plan = await planAgent.generatePlan(
+        messages: ctx.apiMessages,
+        toolDefinitions: ctx.toolDefs,
+        userGoal: userGoal,
+        config: ctx.config,
+        modelId: ctx.modelId,
+        temperature: (ctx.assistant as dynamic)?.temperature as double?,
+        topP: (ctx.assistant as dynamic)?.topP as double?,
+      );
+
+      // If the model decided planning isn't needed, fall back.
+      if (plan.steps.isEmpty) {
+        await _executeGeneration(ctx);
+        return;
+      }
+
+      // Notify UI
+      streamController.setPlanParts(messageId, plan);
+      onPlanCreated?.call(messageId, plan);
+
+      // --- Execute plan step-by-step ---
+      await for (final event in planAgent.executePlan(
+        plan: plan,
+        onToolCall: ctx.onToolCall,
+        config: ctx.config,
+        modelId: ctx.modelId,
+        temperature: (ctx.assistant as dynamic)?.temperature as double?,
+        topP: (ctx.assistant as dynamic)?.topP as double?,
+        maxTokens: (ctx.assistant as dynamic)?.maxTokens as int?,
+      )) {
+        // Update plan UI after each event
+        streamController.setPlanParts(messageId, event.plan);
+        onPlanUpdated?.call(messageId, event.plan);
+
+        // Also add tool-call UI parts for tool_call steps so existing
+        // tool display widgets pick them up.
+        if (event.step != null &&
+            event.step!.action == PlanStepAction.toolCall) {
+          if (event.kind == PlanEventKind.stepStarted) {
+            final existing =
+                List<ToolUIPart>.of(streamController.toolParts[messageId] ?? []);
+            existing.add(ToolUIPart(
+              id: event.step!.stepId,
+              toolName: event.step!.toolName ?? '',
+              arguments: event.step!.toolArgs ?? const {},
+              loading: true,
+            ));
+            streamController.setToolParts(
+                messageId, streamController.dedupeToolPartsList(existing));
+            streamController.streamingContentNotifier
+                .notifyToolPartsUpdated(messageId);
+          } else if (event.kind == PlanEventKind.stepCompleted ||
+              event.kind == PlanEventKind.stepFailed) {
+            final parts = streamController.toolParts[messageId] ?? [];
+            final idx = parts.indexWhere((p) => p.id == event.step!.stepId);
+            if (idx >= 0) {
+              parts[idx] = ToolUIPart(
+                id: event.step!.stepId,
+                toolName: event.step!.toolName ?? '',
+                arguments: event.step!.toolArgs ?? const {},
+                content: event.step!.result ?? event.step!.error ?? '',
+                loading: false,
+              );
+              streamController.setToolParts(messageId, parts);
+              streamController.streamingContentNotifier
+                  .notifyToolPartsUpdated(messageId);
+            }
+          }
+        }
+      }
+
+      // --- Summarise results ---
+      final summary = await planAgent.summariseResults(
+        plan: plan,
+        config: ctx.config,
+        modelId: ctx.modelId,
+        temperature: (ctx.assistant as dynamic)?.temperature as double?,
+        topP: (ctx.assistant as dynamic)?.topP as double?,
+      );
+
+      // --- Write final response ---
+      state.fullContentRaw = summary;
+      final processedContent = _transformAssistantContent(state, summary);
+
+      await chatService.updateMessage(
+        messageId,
+        content: processedContent,
+        isStreaming: false,
+      );
+
+      final index = _messages.indexWhere((m) => m.id == messageId);
+      if (index != -1) {
+        _messages[index] = _messages[index].copyWith(
+          content: processedContent,
+          isStreaming: false,
+        );
+        onMessagesChanged?.call();
+      }
+
+      streamController.markStreamingEnded(messageId);
+      _setConversationLoading(conversationId, false);
+      onStreamFinished?.call();
+
+      if (ctx.generateTitleOnFinish) {
+        onMaybeGenerateTitle?.call(conversationId);
+      }
+      onMaybeGenerateSummary?.call(conversationId);
+    } catch (e) {
+      await _handleStreamError(e, state);
+    }
+  }
+
+  /// Extract the text of the last user message for plan goal.
+  String _extractUserGoal(List<Map<String, dynamic>> messages) {
+    for (var i = messages.length - 1; i >= 0; i--) {
+      final msg = messages[i];
+      if (msg['role'] == 'user') {
+        final content = msg['content'];
+        if (content is String) return content;
+        if (content is List) {
+          return content
+              .whereType<Map>()
+              .where((p) => p['type'] == 'text')
+              .map((p) => p['text']?.toString() ?? '')
+              .join(' ');
+        }
+        return content?.toString() ?? '';
+      }
+    }
+    return '';
   }
 
   // ============================================================================

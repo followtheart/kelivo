@@ -1337,6 +1337,36 @@ abstract class AppLocalizations {
   /// **'Enable streaming responses'**
   String get assistantEditStreamOutputDescription;
 
+  /// No description provided for @assistantEditPlanModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan Agent'**
+  String get assistantEditPlanModeTitle;
+
+  /// No description provided for @assistantEditPlanModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate an execution plan before calling tools'**
+  String get assistantEditPlanModeDescription;
+
+  /// No description provided for @assistantEditPlanModeNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get assistantEditPlanModeNever;
+
+  /// No description provided for @assistantEditPlanModeAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get assistantEditPlanModeAuto;
+
+  /// No description provided for @assistantEditPlanModeAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'Always'**
+  String get assistantEditPlanModeAlways;
+
   /// No description provided for @assistantEditThinkingBudgetTitle.
   ///
   /// In en, this message translates to:

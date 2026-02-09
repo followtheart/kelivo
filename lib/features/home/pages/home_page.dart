@@ -643,6 +643,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       reasoning: _controller.reasoning,
       reasoningSegments: _controller.reasoningSegments,
       toolParts: _controller.toolParts,
+      planParts: _controller.planParts,
       translations: _buildTranslationUiStates(),
       selecting: _controller.selecting,
       selectedItems: _controller.selectedItems,

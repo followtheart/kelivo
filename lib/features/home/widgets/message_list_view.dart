@@ -10,6 +10,7 @@ import '../../../shared/widgets/ios_checkbox.dart';
 import '../../chat/widgets/chat_message_widget.dart';
 import '../../chat/widgets/message_more_sheet.dart';
 import '../controllers/stream_controller.dart' as stream_ctrl;
+import '../../../core/models/execution_plan.dart';
 import '../controllers/streaming_content_notifier.dart';
 import '../utils/chat_layout_constants.dart';
 import 'model_icon.dart';
@@ -70,6 +71,7 @@ class MessageListView extends StatelessWidget {
     required this.reasoning,
     required this.reasoningSegments,
     required this.toolParts,
+    required this.planParts,
     required this.translations,
     required this.selecting,
     required this.selectedItems,
@@ -102,6 +104,7 @@ class MessageListView extends StatelessWidget {
   final Map<String, stream_ctrl.ReasoningData> reasoning;
   final Map<String, List<stream_ctrl.ReasoningSegmentData>> reasoningSegments;
   final Map<String, List<ToolUIPart>> toolParts;
+  final Map<String, ExecutionPlan> planParts;
   final Map<String, TranslationUiState> translations;
   final bool selecting;
   final Set<String> selectedItems;
@@ -534,6 +537,7 @@ class MessageListView extends StatelessWidget {
         }
       },
       toolParts: message.role == 'assistant' ? toolParts[message.id] : null,
+      planParts: message.role == 'assistant' ? planParts[message.id] : null,
       reasoningSegments: message.role == 'assistant'
           ? (() {
               final segments = reasoningSegments[message.id];

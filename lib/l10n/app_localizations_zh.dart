@@ -661,6 +661,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get assistantEditStreamOutputDescription => '是否启用消息的流式输出';
 
   @override
+  String get assistantEditPlanModeTitle => '规划代理';
+
+  @override
+  String get assistantEditPlanModeDescription => '在调用工具前先生成执行计划';
+
+  @override
+  String get assistantEditPlanModeNever => '关闭';
+
+  @override
+  String get assistantEditPlanModeAuto => '自动';
+
+  @override
+  String get assistantEditPlanModeAlways => '始终';
+
+  @override
   String get assistantEditThinkingBudgetTitle => '思考预算';
 
   @override
@@ -4683,6 +4698,21 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get assistantEditStreamOutputDescription => '是否启用消息的流式输出';
 
   @override
+  String get assistantEditPlanModeTitle => '规划代理';
+
+  @override
+  String get assistantEditPlanModeDescription => '在调用工具前先生成执行计划';
+
+  @override
+  String get assistantEditPlanModeNever => '关闭';
+
+  @override
+  String get assistantEditPlanModeAuto => '自动';
+
+  @override
+  String get assistantEditPlanModeAlways => '始终';
+
+  @override
   String get assistantEditThinkingBudgetTitle => '思考预算';
 
   @override
@@ -8651,6 +8681,21 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get assistantEditStreamOutputDescription => '是否啟用訊息的串流輸出';
+
+  @override
+  String get assistantEditPlanModeTitle => '規劃代理';
+
+  @override
+  String get assistantEditPlanModeDescription => '在呼叫工具前先產生執行計劃';
+
+  @override
+  String get assistantEditPlanModeNever => '關閉';
+
+  @override
+  String get assistantEditPlanModeAuto => '自動';
+
+  @override
+  String get assistantEditPlanModeAlways => '始終';
 
   @override
   String get assistantEditThinkingBudgetTitle => '思考預算';

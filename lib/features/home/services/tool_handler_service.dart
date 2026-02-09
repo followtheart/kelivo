@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/assistant.dart';
+import '../../../core/models/execution_plan.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/mcp_provider.dart';
 import '../../../core/providers/memory_provider.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/services/mcp/mcp_tool_service.dart';
 import '../../../core/services/search/search_tool_service.dart';
+import '../../../core/services/function_calling/function_router.dart';
 
 /// 工具调用处理服务
 ///
@@ -154,6 +156,40 @@ class ToolHandlerService {
     );
     toolDefs.addAll(mcpTools);
 
+    // Local tools (from FunctionRouter)
+    if (supportsTools) {
+      try {
+        final router = contextProvider.read<FunctionRouter>();
+        final providerCfg = settings.getProviderConfig(providerKey);
+        final providerKind = ProviderConfig.classify(
+          providerCfg.id,
+          explicitType: providerCfg.providerType,
+        );
+        final localTools = router.buildLocalToolDefinitions(
+          providerKey: providerKey,
+          providerKind: providerKind,
+        );
+        // Sanitize parameters for the target provider
+        for (final lt in localTools) {
+          final fn = lt['function'] as Map<String, dynamic>?;
+          if (fn != null && fn['parameters'] is Map<String, dynamic>) {
+            fn['parameters'] = sanitizeToolParametersForProvider(
+              fn['parameters'] as Map<String, dynamic>,
+              providerKind,
+            );
+          }
+        }
+        toolDefs.addAll(localTools);
+      } catch (_) {
+        // FunctionRouter may not be available in all contexts
+      }
+    }
+
+    // Plan tool (allows the LLM to self-trigger planning)
+    if (supportsTools && (assistant?.planMode ?? PlanMode.never) != PlanMode.never) {
+      toolDefs.add(_buildPlanToolDefinition());
+    }
+
     return toolDefs;
   }
 
@@ -294,6 +330,17 @@ class ToolHandlerService {
         return memoryResult;
       }
 
+      // Local tools (FunctionRouter)
+      try {
+        final router = contextProvider.read<FunctionRouter>();
+        if (router.isToolRegistered(name)) {
+          final result = await router.callTool(name, args);
+          return result.toResponseText();
+        }
+      } catch (_) {
+        // FunctionRouter may not be available
+      }
+
       // MCP tools
       final text = await toolSvc.callToolTextForAssistant(
         mcp,
@@ -303,6 +350,63 @@ class ToolHandlerService {
         arguments: args,
       );
       return text;
+    };
+  }
+
+  /// Build the "create_execution_plan" tool definition.
+  static Map<String, dynamic> _buildPlanToolDefinition() {
+    return {
+      'type': 'function',
+      'function': {
+        'name': 'create_execution_plan',
+        'description':
+            'When a task requires multiple coordinated steps to complete, '
+            'create a structured execution plan. Use this for complex queries '
+            'that involve calling multiple tools, comparing results, or '
+            'aggregating data from several sources.',
+        'parameters': {
+          'type': 'object',
+          'properties': {
+            'goal': {
+              'type': 'string',
+              'description': 'A concise description of the task goal.',
+            },
+            'steps': {
+              'type': 'array',
+              'description': 'Ordered list of execution steps.',
+              'items': {
+                'type': 'object',
+                'properties': {
+                  'description': {
+                    'type': 'string',
+                    'description': 'Human-readable step description.',
+                  },
+                  'action': {
+                    'type': 'string',
+                    'enum': ['tool_call', 'llm_query', 'aggregate', 'validate'],
+                    'description': 'The type of action for this step.',
+                  },
+                  'tool_name': {
+                    'type': 'string',
+                    'description': 'Tool name (only for tool_call action).',
+                  },
+                  'tool_args': {
+                    'type': 'object',
+                    'description': 'Arguments to pass to the tool.',
+                  },
+                  'depends_on': {
+                    'type': 'array',
+                    'items': {'type': 'string'},
+                    'description': 'List of step_ids this step depends on.',
+                  },
+                },
+                'required': ['description'],
+              },
+            },
+          },
+          'required': ['goal', 'steps'],
+        },
+      },
     };
   }
 

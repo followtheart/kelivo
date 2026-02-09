@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/models/chat_message.dart';
+import '../../../core/models/execution_plan.dart';
 import '../../../core/models/token_usage.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/services/api/chat_api_service.dart';
@@ -99,6 +100,10 @@ class StreamController {
       <String, List<ToolUIPart>>{};
   Map<String, List<ToolUIPart>> get toolParts => _toolParts;
 
+  /// Plan execution state per assistant message.
+  final Map<String, ExecutionPlan> _planParts = <String, ExecutionPlan>{};
+  Map<String, ExecutionPlan> get planParts => _planParts;
+
   /// Gemini thought signatures per assistant message.
   final Map<String, String> _geminiThoughtSigs = <String, String>{};
   Map<String, String> get geminiThoughtSigs => _geminiThoughtSigs;
@@ -173,11 +178,27 @@ class StreamController {
     _toolParts.remove(messageId);
   }
 
-  /// Clear all state for a message (reasoning, segments, tools).
+  /// Get plan for a message.
+  ExecutionPlan? getPlanParts(String messageId) => _planParts[messageId];
+
+  /// Set plan for a message.
+  void setPlanParts(String messageId, ExecutionPlan plan) {
+    _planParts[messageId] = plan;
+    // Notify via StreamingContentNotifier for real-time UI updates
+    streamingContentNotifier.notifyToolPartsUpdated(messageId);
+  }
+
+  /// Remove plan for a message.
+  void removePlanParts(String messageId) {
+    _planParts.remove(messageId);
+  }
+
+  /// Clear all state for a message (reasoning, segments, tools, plans).
   void clearMessageState(String messageId) {
     _reasoning.remove(messageId);
     _reasoningSegments.remove(messageId);
     _toolParts.remove(messageId);
+    _planParts.remove(messageId);
     _geminiThoughtSigs.remove(messageId);
     _cleanupStreamTimers(messageId);
   }
@@ -187,6 +208,7 @@ class StreamController {
     _reasoning.clear();
     _reasoningSegments.clear();
     _toolParts.clear();
+    _planParts.clear();
     _geminiThoughtSigs.clear();
     _cancelAllTimers();
     streamingContentNotifier.clear();

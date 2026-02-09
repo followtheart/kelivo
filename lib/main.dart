@@ -33,6 +33,7 @@ import 'core/providers/backup_provider.dart';
 import 'core/providers/hotkey_provider.dart';
 import 'core/services/chat/chat_service.dart';
 import 'core/services/mcp/mcp_tool_service.dart';
+import 'core/services/function_calling/function_router.dart';
 import 'core/services/logging/flutter_logger.dart';
 import 'utils/sandbox_path_resolver.dart';
 import 'shared/widgets/snackbar.dart';
@@ -136,6 +137,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MemoryProvider()),
         // Desktop hotkeys provider
         ChangeNotifierProvider(create: (_) => HotkeyProvider()),
+        // Function calling router for local tools
+        ChangeNotifierProvider(create: (_) => FunctionRouter()),
         ChangeNotifierProvider(
           create: (ctx) => BackupProvider(
             chatService: ctx.read<ChatService>(),

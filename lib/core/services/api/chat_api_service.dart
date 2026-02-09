@@ -1069,6 +1069,77 @@ class ChatApiService {
     }).toList();
   }
 
+  /// Patch output items from a Responses API `response.completed` event to
+  /// ensure every `function_call` item carries a valid `call_id`.
+  ///
+  /// Some providers / proxies may return `function_call` items with an empty or
+  /// missing `call_id`. When such items are forwarded in the follow-up
+  /// `input` array the API rejects them with HTTP 400.
+  ///
+  /// [resolvedCallIds] maps tool name → the call ID we actually used (which
+  /// may be a fallback like `call_0`). If a `function_call` item has no
+  /// `call_id` we try to fill it from [resolvedCallIds]; if that also fails we
+  /// generate a deterministic placeholder so the request can proceed.
+  static List<Map<String, dynamic>> _patchOutputItemCallIds(
+      List<Map<String, dynamic>> items,
+      Map<String, String> resolvedCallIds) {
+    if (items.isEmpty) return items;
+    int fallbackIdx = 0;
+    return items.map((item) {
+      if ((item['type'] ?? '') != 'function_call') return item;
+      final existing = (item['call_id'] ?? '').toString();
+      if (existing.isNotEmpty) return item;
+      // call_id is missing – try to resolve from the name
+      final name = (item['name'] ?? '').toString();
+      final resolved = resolvedCallIds[name];
+      final patched = Map<String, dynamic>.from(item);
+      patched['call_id'] = resolved ?? 'call_patched_$fallbackIdx';
+      fallbackIdx++;
+      return patched;
+    }).toList();
+  }
+
+  /// Sanitize Responses API `input` items to ensure any function call items
+  /// (function_call / function_call_output) include a valid `call_id`.
+  ///
+  /// This prevents provider-side 400 errors when a missing call_id slips
+  /// through proxies or legacy histories.
+  static List<Map<String, dynamic>> _sanitizeResponsesInputCallIds(
+      List<Map<String, dynamic>> input,
+      Map<String, String> resolvedCallIds) {
+    if (input.isEmpty) return input;
+    int fallbackIdx = 0;
+    String? lastCallId;
+
+    String _fallbackId() => 'call_patched_${fallbackIdx++}';
+
+    return input.map((item) {
+      final type = (item['type'] ?? '').toString();
+      if (type == 'function_call') {
+        var callId = (item['call_id'] ?? '').toString();
+        if (callId.isEmpty) {
+          final name = (item['name'] ?? '').toString();
+          callId = resolvedCallIds[name] ?? _fallbackId();
+        }
+        lastCallId = callId;
+        final patched = Map<String, dynamic>.from(item);
+        patched['call_id'] = callId;
+        return patched;
+      }
+      if (type == 'function_call_output') {
+        var callId = (item['call_id'] ?? '').toString();
+        if (callId.isEmpty) {
+          callId = lastCallId ?? (resolvedCallIds.isNotEmpty ? resolvedCallIds.values.first : _fallbackId());
+        }
+        if (callId.isEmpty) return item;
+        final patched = Map<String, dynamic>.from(item);
+        patched['call_id'] = callId;
+        return patched;
+      }
+      return item;
+    }).toList();
+  }
+
   static Stream<ChatStreamChunk> _sendOpenAIStream(
       http.Client client,
       ProviderConfig config,
@@ -1204,15 +1275,17 @@ class ChatApiService {
 
         // Handle tool result messages (role: 'tool') - convert to function_call_output format
         if (roleRaw == 'tool') {
-          final toolCallId = (m['tool_call_id'] ?? '').toString();
+          var toolCallId = (m['tool_call_id'] ?? '').toString();
           final content = (m['content'] ?? '').toString();
-          if (toolCallId.isNotEmpty) {
-            input.add({
-              'type': 'function_call_output',
-              'call_id': toolCallId,
-              'output': content,
-            });
+          // Generate a fallback call_id if missing to prevent 400 errors
+          if (toolCallId.isEmpty) {
+            toolCallId = 'call_fallback_output_${input.length}';
           }
+          input.add({
+            'type': 'function_call_output',
+            'call_id': toolCallId,
+            'output': content,
+          });
           continue;
         }
 
@@ -1223,19 +1296,22 @@ class ChatApiService {
           final toolCalls = m['tool_calls'] as List;
           for (final tc in toolCalls) {
             if (tc is! Map) continue;
-            final callId = (tc['id'] ?? '').toString();
+            var callId = (tc['id'] ?? '').toString();
             final fn = tc['function'];
             if (fn is! Map) continue;
             final name = (fn['name'] ?? '').toString();
             final arguments = (fn['arguments'] ?? '{}').toString();
-            if (callId.isNotEmpty && name.isNotEmpty) {
-              input.add({
-                'type': 'function_call',
-                'call_id': callId,
-                'name': name,
-                'arguments': arguments,
-              });
+            if (name.isEmpty) continue;
+            // Generate a fallback call_id if missing to prevent 400 errors
+            if (callId.isEmpty) {
+              callId = 'call_fallback_${input.length}_${name.hashCode.abs()}';
             }
+            input.add({
+              'type': 'function_call',
+              'call_id': callId,
+              'name': name,
+              'arguments': arguments,
+            });
           }
           // Skip adding the assistant message content if it only contains tool calls
           if (raw.trim().isEmpty || raw.trim() == '\n\n') continue;
@@ -1352,6 +1428,14 @@ class ChatApiService {
         if (ws is Map && ws['include_sources'] == true) {
           (body as Map<String, dynamic>)['include'] = ['web_search_call.action.sources'];
         }
+      } catch (_) {}
+      // Sanitize call_ids in the initial input to prevent 400 errors
+      try {
+        final rawInput = List<Map<String, dynamic>>.from(
+          (input).map((e) => (e as Map).cast<String, dynamic>()),
+        );
+        final sanitized = _sanitizeResponsesInputCallIds(rawInput, const {});
+        (body as Map<String, dynamic>)['input'] = sanitized;
       } catch (_) {}
       // Save initial Responses context
       try {
@@ -2431,9 +2515,19 @@ class ChatApiService {
                 }
 
                 // Build follow-up Responses request input
+                // Patch lastResponseOutputItems: ensure every function_call item
+                // has a valid call_id matching the IDs we used in followUpOutputs.
+                final resolvedCallIds = <String, String>{};
+                for (final m in msgs) {
+                  final name = m['__name'] as String;
+                  final id = m['__id'] as String;
+                  resolvedCallIds[name] = id;
+                }
+                final patchedOutputItems = _patchOutputItemCallIds(lastResponseOutputItems, resolvedCallIds);
                 List<Map<String, dynamic>> currentInput = <Map<String, dynamic>>[...responsesInitialInput];
-                if (lastResponseOutputItems.isNotEmpty) currentInput.addAll(lastResponseOutputItems);
+                if (patchedOutputItems.isNotEmpty) currentInput.addAll(patchedOutputItems);
                 currentInput.addAll(followUpOutputs);
+                currentInput = _sanitizeResponsesInputCallIds(currentInput, resolvedCallIds);
 
                 // Iteratively request until no more tool calls
                 for (int round = 0; round < 3; round++) {
@@ -2594,8 +2688,14 @@ class ChatApiService {
                     yield ChatStreamChunk(content: '', isDone: false, totalTokens: usage?.totalTokens ?? 0, usage: usage, toolResults: resultsInfo2);
                   }
                   // Extend current input with this round's model output and our outputs
-                  if (outItems2.isNotEmpty) currentInput.addAll(outItems2);
+                  final resolvedCallIds2 = <String, String>{};
+                  for (final m in msgs2) {
+                    resolvedCallIds2[m['__name'] as String] = m['__id'] as String;
+                  }
+                  final patchedOutItems2 = _patchOutputItemCallIds(outItems2, resolvedCallIds2);
+                  if (patchedOutItems2.isNotEmpty) currentInput.addAll(patchedOutItems2);
                   currentInput.addAll(followUpOutputs2);
+                  currentInput = _sanitizeResponsesInputCallIds(currentInput, resolvedCallIds2);
                 }
 
                 // Safety

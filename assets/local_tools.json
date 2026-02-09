@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "description": "Kelivo local tools configuration. Define custom local tools using JSON, similar to MCP tool protocol.",
+  "tools": [
+    {
+      "name": "open_notepad",
+      "description": "打开记事本.",
+      "source": "local",
+      "priority": 15,
+      "safety": "safe",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "program": {
+            "type": "string",
+            "description": "The program name or alias to open. Examples: \"notepad\", \"calc\", \"chrome\", \"explorer\", \"cmd\", \"powershell\", \"code\", \"mspaint\""
+          },
+          "file": {
+            "type": "string",
+            "description": "Optional: file path to open with the program. Example: \"C:\\Users\\user\\document.txt\""
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional: additional command line arguments"
+          }
+        },
+        "required": [
+          "program"
+        ]
+      },
+      "executor": {
+        "type": "local_program",
+        "mode": "launch",       
+        "command": "notepad.exe",
+        "defaultArgs": [],
+        "shell": false
+      }
+    },
+    {
+      "name": "directory_listing",
+      "description": "列目录.",
+      "source": "local",
+      "priority": 15,
+      "safety": "safe",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "program": {
+            "type": "dir.exe",
+            "description": "The program name or alias to open. Examples: \"notepad\", \"calc\", \"chrome\", \"explorer\", \"cmd\", \"powershell\", \"code\", \"mspaint\""
+          },
+          "file": {
+            "type": "string",
+            "description": "Optional: file path to open with the program. Example: \"C:\\Users\\user\\document.txt\""
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional: additional command line arguments"
+          }
+        },
+        "required": [
+          "program"
+        ]
+      },
+      "executor": {
+        "type": "local_program",
+        "mode": "launch",       
+        "command": "dir",
+        "defaultArgs": [],
+        "shell": true
+      }
+    },
+    {
+      "name": "run_local_command",
+      "description": "Run a local command and return its output. Use for getting system information, listing files, etc. Note: Dangerous commands (rm, del, format, etc.) are blocked.",
+      "source": "local",
+      "priority": 20,
+      "safety": "confirm",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "program": {
+            "type": "string",
+            "description": "The command to run. Examples: \"dir\", \"echo\", \"whoami\", \"hostname\", \"ipconfig\""
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Command arguments"
+          }
+        },
+        "required": [
+          "program"
+        ]
+      },
+      "executor": {
+        "type": "local_program",
+        "mode": "run",
+        "shell": true
+      }
+    }
+  ]
+}

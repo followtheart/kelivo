@@ -677,6 +677,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enable streaming responses';
 
   @override
+  String get assistantEditPlanModeTitle => 'Plan Agent';
+
+  @override
+  String get assistantEditPlanModeDescription =>
+      'Generate an execution plan before calling tools';
+
+  @override
+  String get assistantEditPlanModeNever => 'Off';
+
+  @override
+  String get assistantEditPlanModeAuto => 'Auto';
+
+  @override
+  String get assistantEditPlanModeAlways => 'Always';
+
+  @override
   String get assistantEditThinkingBudgetTitle => 'Thinking Budget';
 
   @override

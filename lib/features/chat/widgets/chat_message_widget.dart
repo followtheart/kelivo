@@ -38,6 +38,8 @@ import '../../../shared/widgets/ios_tactile.dart';
 import '../../../desktop/desktop_context_menu.dart';
 import '../../../desktop/menu_anchor.dart';
 import '../../../shared/widgets/emoji_text.dart';
+import '../../../core/models/execution_plan.dart';
+import '../../home/widgets/plan_card_widget.dart';
 
 /// Extract image paths from tool result content.
 /// Returns (cleanText, imagePaths). Supports local file paths and HTTP URLs.
@@ -96,6 +98,8 @@ class ChatMessageWidget extends StatefulWidget {
   final VoidCallback? onToggleTranslation;
   // MCP tool calls/results mixed-in cards
   final List<ToolUIPart>? toolParts;
+  // Plan agent execution plan
+  final ExecutionPlan? planParts;
   // Hide streaming dots when pinned globally
   final bool hideStreamingIndicator;
   // Whether files are currently being processed
@@ -133,6 +137,7 @@ class ChatMessageWidget extends StatefulWidget {
     this.translationExpanded = true,
     this.onToggleTranslation,
     this.toolParts,
+    this.planParts,
     this.hideStreamingIndicator = false,
     this.isProcessingFiles = false,
   });
@@ -1312,6 +1317,13 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                 const SizedBox(height: 8),
               ];
             }(),
+            // Plan execution card (before tool cards)
+            if (widget.planParts != null) ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: PlanCard(plan: widget.planParts!),
+              ),
+            ],
             // Tool call placeholders before content 隐藏内置搜索工具卡片
             if ((widget.toolParts ?? const <ToolUIPart>[]).where((p) => p.toolName != 'builtin_search').isNotEmpty) ...[
               Column(
