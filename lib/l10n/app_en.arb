@@ -1736,5 +1736,60 @@
   "worldBookInjectionPositionBottomOfChat": "Bottom of chat",
   "worldBookInjectionPositionAtDepth": "At depth",
   "worldBookInjectionRoleUser": "User",
-  "worldBookInjectionRoleAssistant": "Assistant"
+  "worldBookInjectionRoleAssistant": "Assistant",
+
+  "settingsPageAgentSkills": "Agent Skills",
+  "agentSkillsTitle": "Agent Skills",
+  "agentSkillsEmpty": "No skills found.\nAdd skill directories or place SKILL.md files in the default skills folder.",
+  "agentSkillsRefresh": "Refresh",
+  "agentSkillsDirectories": "Skill Directories",
+  "agentSkillsAddDirectory": "Add Directory",
+  "agentSkillsRemoveDirectory": "Remove",
+  "agentSkillsRemoveDirectoryConfirm": "Remove this skill directory?",
+  "agentSkillsEnabled": "Enabled",
+  "agentSkillsDisabled": "Disabled",
+  "agentSkillsDetailTitle": "Skill Detail",
+  "agentSkillsLicense": "License",
+  "agentSkillsCompatibility": "Compatibility",
+  "agentSkillsAllowedTools": "Allowed Tools",
+  "agentSkillsPath": "Path",
+  "agentSkillsInstructions": "Instructions",
+  "agentSkillsNoInstructions": "No instructions available.",
+  "agentSkillsBoundCount": "{count} skill(s) bound",
+  "@agentSkillsBoundCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "agentSkillsAssistantTab": "Skills",
+  "agentSkillsAssistantEmpty": "No skills available.\nDiscover skills from Settings → Agent Skills.",
+  "agentSkillsManageDirectories": "Manage Directories",
+  "agentSkillsDefaultDir": "Default",
+
+  "agentSkillEditorCreateTitle": "Create Skill",
+  "agentSkillEditorEditTitle": "Edit Skill",
+  "agentSkillEditorSave": "Save",
+  "agentSkillEditorMetadata": "Metadata",
+  "agentSkillEditorName": "Name",
+  "agentSkillEditorNameRequired": "Skill name is required",
+  "agentSkillEditorNameInvalid": "Only letters, numbers, hyphens and underscores",
+  "agentSkillEditorDescription": "Description",
+  "agentSkillEditorDescriptionRequired": "Description is required",
+  "agentSkillEditorLicense": "License",
+  "agentSkillEditorCompatibility": "Compatibility",
+  "agentSkillEditorAllowedTools": "Allowed Tools",
+  "agentSkillEditorAllowedToolsHelper": "Comma-separated tool names this skill may invoke",
+  "agentSkillEditorInstructions": "Instructions",
+  "agentSkillEditorInstructionsHelper": "Markdown content the LLM receives when this skill is activated",
+  "agentSkillEditorInstructionsRequired": "Instructions are required",
+
+  "agentSkillImportTitle": "Import Skill",
+  "agentSkillImportFromZip": "Import from ZIP",
+  "agentSkillImportFromZipDesc": "Select a .zip file containing a SKILL.md and optional scripts/references",
+  "agentSkillImportSelectFile": "Select ZIP File",
+  "agentSkillImportFromGitHub": "Import from GitHub",
+  "agentSkillImportFromGitHubDesc": "Enter a GitHub repository URL or skill directory URL",
+  "agentSkillImportFromGitHubAction": "Import",
+
+  "agentSkillExportTitle": "Export Skill"
 }

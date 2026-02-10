@@ -7843,6 +7843,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Assistant'**
   String get worldBookInjectionRoleAssistant;
+
+  /// No description provided for @settingsPageAgentSkills.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent Skills'**
+  String get settingsPageAgentSkills;
+
+  /// No description provided for @agentSkillsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent Skills'**
+  String get agentSkillsTitle;
+
+  /// No description provided for @agentSkillsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No skills found.\nAdd skill directories or place SKILL.md files in the default skills folder.'**
+  String get agentSkillsEmpty;
+
+  /// No description provided for @agentSkillsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get agentSkillsRefresh;
+
+  /// No description provided for @agentSkillsDirectories.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill Directories'**
+  String get agentSkillsDirectories;
+
+  /// No description provided for @agentSkillsAddDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Directory'**
+  String get agentSkillsAddDirectory;
+
+  /// No description provided for @agentSkillsRemoveDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get agentSkillsRemoveDirectory;
+
+  /// No description provided for @agentSkillsRemoveDirectoryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this skill directory?'**
+  String get agentSkillsRemoveDirectoryConfirm;
+
+  /// No description provided for @agentSkillsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get agentSkillsEnabled;
+
+  /// No description provided for @agentSkillsDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get agentSkillsDisabled;
+
+  /// No description provided for @agentSkillsDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill Detail'**
+  String get agentSkillsDetailTitle;
+
+  /// No description provided for @agentSkillsLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get agentSkillsLicense;
+
+  /// No description provided for @agentSkillsCompatibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Compatibility'**
+  String get agentSkillsCompatibility;
+
+  /// No description provided for @agentSkillsAllowedTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed Tools'**
+  String get agentSkillsAllowedTools;
+
+  /// No description provided for @agentSkillsPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Path'**
+  String get agentSkillsPath;
+
+  /// No description provided for @agentSkillsInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get agentSkillsInstructions;
+
+  /// No description provided for @agentSkillsNoInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'No instructions available.'**
+  String get agentSkillsNoInstructions;
+
+  /// No description provided for @agentSkillsBoundCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} skill(s) bound'**
+  String agentSkillsBoundCount(String count);
+
+  /// No description provided for @agentSkillsAssistantTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get agentSkillsAssistantTab;
+
+  /// No description provided for @agentSkillsAssistantEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No skills available.\nDiscover skills from Settings → Agent Skills.'**
+  String get agentSkillsAssistantEmpty;
+
+  /// No description provided for @agentSkillsManageDirectories.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Directories'**
+  String get agentSkillsManageDirectories;
+
+  /// No description provided for @agentSkillsDefaultDir.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get agentSkillsDefaultDir;
+
+  /// No description provided for @agentSkillEditorCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Skill'**
+  String get agentSkillEditorCreateTitle;
+
+  /// No description provided for @agentSkillEditorEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Skill'**
+  String get agentSkillEditorEditTitle;
+
+  /// No description provided for @agentSkillEditorSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get agentSkillEditorSave;
+
+  /// No description provided for @agentSkillEditorMetadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata'**
+  String get agentSkillEditorMetadata;
+
+  /// No description provided for @agentSkillEditorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get agentSkillEditorName;
+
+  /// No description provided for @agentSkillEditorNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill name is required'**
+  String get agentSkillEditorNameRequired;
+
+  /// No description provided for @agentSkillEditorNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Only letters, numbers, hyphens and underscores'**
+  String get agentSkillEditorNameInvalid;
+
+  /// No description provided for @agentSkillEditorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get agentSkillEditorDescription;
+
+  /// No description provided for @agentSkillEditorDescriptionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Description is required'**
+  String get agentSkillEditorDescriptionRequired;
+
+  /// No description provided for @agentSkillEditorLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get agentSkillEditorLicense;
+
+  /// No description provided for @agentSkillEditorCompatibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Compatibility'**
+  String get agentSkillEditorCompatibility;
+
+  /// No description provided for @agentSkillEditorAllowedTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed Tools'**
+  String get agentSkillEditorAllowedTools;
+
+  /// No description provided for @agentSkillEditorAllowedToolsHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Comma-separated tool names this skill may invoke'**
+  String get agentSkillEditorAllowedToolsHelper;
+
+  /// No description provided for @agentSkillEditorInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get agentSkillEditorInstructions;
+
+  /// No description provided for @agentSkillEditorInstructionsHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Markdown content the LLM receives when this skill is activated'**
+  String get agentSkillEditorInstructionsHelper;
+
+  /// No description provided for @agentSkillEditorInstructionsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions are required'**
+  String get agentSkillEditorInstructionsRequired;
+
+  /// No description provided for @agentSkillImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Skill'**
+  String get agentSkillImportTitle;
+
+  /// No description provided for @agentSkillImportFromZip.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from ZIP'**
+  String get agentSkillImportFromZip;
+
+  /// No description provided for @agentSkillImportFromZipDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a .zip file containing a SKILL.md and optional scripts/references'**
+  String get agentSkillImportFromZipDesc;
+
+  /// No description provided for @agentSkillImportSelectFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Select ZIP File'**
+  String get agentSkillImportSelectFile;
+
+  /// No description provided for @agentSkillImportFromGitHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from GitHub'**
+  String get agentSkillImportFromGitHub;
+
+  /// No description provided for @agentSkillImportFromGitHubDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a GitHub repository URL or skill directory URL'**
+  String get agentSkillImportFromGitHubDesc;
+
+  /// No description provided for @agentSkillImportFromGitHubAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get agentSkillImportFromGitHubAction;
+
+  /// No description provided for @agentSkillExportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Skill'**
+  String get agentSkillExportTitle;
 }
 
 class _AppLocalizationsDelegate

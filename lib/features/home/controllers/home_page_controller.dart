@@ -15,6 +15,7 @@ import '../../../core/providers/mcp_provider.dart';
 import '../../../core/providers/tts_provider.dart';
 import '../../../core/providers/quick_phrase_provider.dart';
 import '../../../core/providers/instruction_injection_provider.dart';
+import '../../../core/providers/agent_skill_provider.dart';
 import '../../../core/services/chat/chat_service.dart';
 import '../../../core/services/haptics.dart';
 import '../../../l10n/app_localizations.dart';
@@ -354,6 +355,11 @@ class HomePageController extends ChangeNotifier {
     Future.microtask(() async {
       try {
         await _context.read<InstructionInjectionProvider>().initialize();
+      } catch (_) {}
+    });
+    Future.microtask(() async {
+      try {
+        await _context.read<AgentSkillProvider>().initialize();
       } catch (_) {}
     });
     try {

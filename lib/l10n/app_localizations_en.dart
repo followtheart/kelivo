@@ -4188,4 +4188,153 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get worldBookInjectionRoleAssistant => 'Assistant';
+
+  @override
+  String get settingsPageAgentSkills => 'Agent Skills';
+
+  @override
+  String get agentSkillsTitle => 'Agent Skills';
+
+  @override
+  String get agentSkillsEmpty =>
+      'No skills found.\nAdd skill directories or place SKILL.md files in the default skills folder.';
+
+  @override
+  String get agentSkillsRefresh => 'Refresh';
+
+  @override
+  String get agentSkillsDirectories => 'Skill Directories';
+
+  @override
+  String get agentSkillsAddDirectory => 'Add Directory';
+
+  @override
+  String get agentSkillsRemoveDirectory => 'Remove';
+
+  @override
+  String get agentSkillsRemoveDirectoryConfirm =>
+      'Remove this skill directory?';
+
+  @override
+  String get agentSkillsEnabled => 'Enabled';
+
+  @override
+  String get agentSkillsDisabled => 'Disabled';
+
+  @override
+  String get agentSkillsDetailTitle => 'Skill Detail';
+
+  @override
+  String get agentSkillsLicense => 'License';
+
+  @override
+  String get agentSkillsCompatibility => 'Compatibility';
+
+  @override
+  String get agentSkillsAllowedTools => 'Allowed Tools';
+
+  @override
+  String get agentSkillsPath => 'Path';
+
+  @override
+  String get agentSkillsInstructions => 'Instructions';
+
+  @override
+  String get agentSkillsNoInstructions => 'No instructions available.';
+
+  @override
+  String agentSkillsBoundCount(String count) {
+    return '$count skill(s) bound';
+  }
+
+  @override
+  String get agentSkillsAssistantTab => 'Skills';
+
+  @override
+  String get agentSkillsAssistantEmpty =>
+      'No skills available.\nDiscover skills from Settings → Agent Skills.';
+
+  @override
+  String get agentSkillsManageDirectories => 'Manage Directories';
+
+  @override
+  String get agentSkillsDefaultDir => 'Default';
+
+  @override
+  String get agentSkillEditorCreateTitle => 'Create Skill';
+
+  @override
+  String get agentSkillEditorEditTitle => 'Edit Skill';
+
+  @override
+  String get agentSkillEditorSave => 'Save';
+
+  @override
+  String get agentSkillEditorMetadata => 'Metadata';
+
+  @override
+  String get agentSkillEditorName => 'Name';
+
+  @override
+  String get agentSkillEditorNameRequired => 'Skill name is required';
+
+  @override
+  String get agentSkillEditorNameInvalid =>
+      'Only letters, numbers, hyphens and underscores';
+
+  @override
+  String get agentSkillEditorDescription => 'Description';
+
+  @override
+  String get agentSkillEditorDescriptionRequired => 'Description is required';
+
+  @override
+  String get agentSkillEditorLicense => 'License';
+
+  @override
+  String get agentSkillEditorCompatibility => 'Compatibility';
+
+  @override
+  String get agentSkillEditorAllowedTools => 'Allowed Tools';
+
+  @override
+  String get agentSkillEditorAllowedToolsHelper =>
+      'Comma-separated tool names this skill may invoke';
+
+  @override
+  String get agentSkillEditorInstructions => 'Instructions';
+
+  @override
+  String get agentSkillEditorInstructionsHelper =>
+      'Markdown content the LLM receives when this skill is activated';
+
+  @override
+  String get agentSkillEditorInstructionsRequired =>
+      'Instructions are required';
+
+  @override
+  String get agentSkillImportTitle => 'Import Skill';
+
+  @override
+  String get agentSkillImportFromZip => 'Import from ZIP';
+
+  @override
+  String get agentSkillImportFromZipDesc =>
+      'Select a .zip file containing a SKILL.md and optional scripts/references';
+
+  @override
+  String get agentSkillImportSelectFile => 'Select ZIP File';
+
+  @override
+  String get agentSkillImportFromGitHub => 'Import from GitHub';
+
+  @override
+  String get agentSkillImportFromGitHubDesc =>
+      'Enter a GitHub repository URL or skill directory URL';
+
+  @override
+  String get agentSkillImportFromGitHubAction => 'Import';
+
+  @override
+  String get agentSkillExportTitle => 'Export Skill';
 }

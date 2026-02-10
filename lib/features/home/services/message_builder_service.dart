@@ -19,6 +19,7 @@ import '../../../core/services/world_book_store.dart';
 import '../../../core/services/search/search_tool_service.dart';
 import '../../../core/providers/instruction_injection_provider.dart';
 import '../../../core/providers/world_book_provider.dart';
+import '../../../core/providers/agent_skill_provider.dart';
 import '../../../core/services/api/builtin_tools.dart';
 import '../../../core/models/assistant_regex.dart';
 import '../../../utils/assistant_regex.dart';
@@ -544,6 +545,86 @@ class MessageBuilderService {
         _appendToSystemMessage(apiMessages, lp);
       }
     } catch (_) {}
+  }
+
+  /// Inject Agent Skills prompts into apiMessages.
+  ///
+  /// Skills bound to the current assistant are fully loaded and their
+  /// instructions injected. Unbound but available skills are listed as
+  /// lightweight `<available_skills>` XML metadata so the LLM knows they
+  /// exist and can be activated dynamically via the `activate_skill` tool.
+  Future<void> injectAgentSkillPrompts(
+    List<Map<String, dynamic>> apiMessages,
+    String? assistantId,
+  ) async {
+    try {
+      AgentSkillProvider? provider;
+      try {
+        provider = contextProvider.read<AgentSkillProvider>();
+      } catch (_) {}
+      if (provider == null) return;
+
+      // Skills bound (active) for this assistant
+      final boundSkills = provider.boundSkillsFor(assistantId);
+      // All enabled skills (not bound) — available for dynamic activation
+      final boundNames = boundSkills.map((s) => s.name).toSet();
+      final availableSkills = provider.skills
+          .where((s) => provider!.isEnabled(s.name) && !boundNames.contains(s.name))
+          .toList();
+
+      if (boundSkills.isEmpty && availableSkills.isEmpty) return;
+
+      final buffer = StringBuffer();
+
+      // Inject bound skill instructions
+      if (boundSkills.isNotEmpty) {
+        buffer.writeln('<skills>');
+        for (final meta in boundSkills) {
+          final skill = await provider.activate(meta.name);
+          if (skill != null && skill.instructions.isNotEmpty) {
+            buffer.writeln('<skill name="${_xmlEscape(skill.name)}">');
+            buffer.writeln(skill.instructions);
+            buffer.writeln('</skill>');
+          }
+        }
+        buffer.writeln('</skills>');
+      }
+
+      // List available (unbound) skills for dynamic activation
+      if (availableSkills.isNotEmpty) {
+        buffer.writeln();
+        buffer.writeln('<available_skills>');
+        buffer.writeln(
+          'The following skills are available but not yet loaded. '
+          'Use the activate_skill tool to load a skill when it is '
+          'relevant to the user\'s request.',
+        );
+        for (final skill in availableSkills) {
+          buffer.write(
+            '<skill name="${_xmlEscape(skill.name)}" '
+            'description="${_xmlEscape(skill.description)}"',
+          );
+          if (skill.allowedTools.isNotEmpty) {
+            buffer.write(
+              ' tools="${_xmlEscape(skill.allowedTools.join(","))}"',
+            );
+          }
+          buffer.writeln(' />');
+        }
+        buffer.writeln('</available_skills>');
+      }
+
+      _appendToSystemMessage(apiMessages, buffer.toString());
+    } catch (_) {}
+  }
+
+  /// Escape special XML characters in a string.
+  String _xmlEscape(String input) {
+    return input
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
   }
 
   /// Inject world book (lorebook) entries into apiMessages.

@@ -26,6 +26,7 @@ import '../../../core/models/execution_plan.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/providers/mcp_provider.dart';
+import '../../../core/providers/agent_skill_provider.dart';
 import '../../model/widgets/model_select_sheet.dart';
 import '../../chat/widgets/reasoning_budget_sheet.dart';
 import 'assistant_regex_tab.dart';
@@ -151,7 +152,7 @@ class _AssistantSettingsEditPageState extends State<AssistantSettingsEditPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this); //mcp
+    _tabController = TabController(length: 7, vsync: this); //mcp + skills
     _tabController.addListener(() {
       // Close IME when switching tabs and refresh state
       FocusManager.instance.primaryFocus?.unfocus();
@@ -222,6 +223,7 @@ class _AssistantSettingsEditPageState extends State<AssistantSettingsEditPage>
                       l10n.assistantEditPagePromptsTab,
                       l10n.assistantEditPageMemoryTab,
                       // l10n.assistantEditPageMcpTab,
+                      l10n.agentSkillsAssistantTab,
                       l10n.assistantEditPageQuickPhraseTab,
                       l10n.assistantEditPageCustomTab,
                       l10n.assistantEditPageRegexTab,
@@ -243,6 +245,7 @@ class _AssistantSettingsEditPageState extends State<AssistantSettingsEditPage>
             _PromptTab(assistantId: assistant.id),
             _MemoryTab(assistantId: assistant.id),
             // _McpTab(assistantId: assistant.id),
+            _AgentSkillsTab(assistantId: assistant.id),
             _QuickPhraseTab(assistantId: assistant.id),
             _CustomRequestTab(assistantId: assistant.id),
             AssistantRegexTab(assistantId: assistant.id),
@@ -7292,4 +7295,133 @@ Future<PlanMode?> _showPlanModePicker(
       );
     },
   );
+}
+
+// ─── Agent Skills Tab ──────────────────────────────────────────────────────
+
+class _AgentSkillsTab extends StatelessWidget {
+  const _AgentSkillsTab({required this.assistantId});
+  final String assistantId;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final skillProvider = context.watch<AgentSkillProvider>();
+    final skills = skillProvider.skills
+        .where((s) => skillProvider.isEnabled(s.name))
+        .toList();
+
+    if (skills.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Text(
+            l10n.agentSkillsAssistantEmpty,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: cs.onSurface.withOpacity(0.6)),
+          ),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+      itemCount: skills.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (context, index) {
+        final skill = skills[index];
+        final isActive =
+            skillProvider.isActiveFor(skill.name, assistantId: assistantId);
+
+        final bg = isActive
+            ? cs.primary.withOpacity(isDark ? 0.12 : 0.10)
+            : (isDark ? Colors.white10 : cs.surface);
+        final borderColor = isActive
+            ? cs.primary.withOpacity(0.45)
+            : cs.outlineVariant.withOpacity(0.25);
+
+        return _TactileRow(
+          onTap: () async {
+            await skillProvider.toggleActiveForAssistant(
+              skill.name,
+              assistantId: assistantId,
+              active: !isActive,
+            );
+          },
+          pressedScale: 1.0,
+          builder: (pressed) {
+            final overlayBg = pressed
+                ? (isDark
+                    ? Color.alphaBlend(Colors.white.withOpacity(0.06), bg)
+                    : Color.alphaBlend(Colors.black.withOpacity(0.05), bg))
+                : bg;
+            return Container(
+              decoration: BoxDecoration(
+                color: overlayBg,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: borderColor, width: 0.6),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white10
+                            : const Color(0xFFF2F3F5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(Lucide.Sparkles, size: 20, color: cs.primary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            skill.name,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            skill.description,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: cs.onSurface.withOpacity(0.65),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    IosSwitch(
+                      value: isActive,
+                      onChanged: (v) async {
+                        await skillProvider.toggleActiveForAssistant(
+                          skill.name,
+                          assistantId: assistantId,
+                          active: v,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }

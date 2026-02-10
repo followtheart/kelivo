@@ -1390,5 +1390,60 @@
   "worldBookInjectionPositionBottomOfChat": "对话底部",
   "worldBookInjectionPositionAtDepth": "指定深度",
   "worldBookInjectionRoleUser": "用户",
-  "worldBookInjectionRoleAssistant": "助手"
+  "worldBookInjectionRoleAssistant": "助手",
+
+  "settingsPageAgentSkills": "Agent Skills",
+  "agentSkillsTitle": "Agent Skills",
+  "agentSkillsEmpty": "未发现任何技能。\n请添加技能目录或将 SKILL.md 文件放入默认技能文件夹。",
+  "agentSkillsRefresh": "刷新",
+  "agentSkillsDirectories": "技能目录",
+  "agentSkillsAddDirectory": "添加目录",
+  "agentSkillsRemoveDirectory": "移除",
+  "agentSkillsRemoveDirectoryConfirm": "确定要移除此技能目录吗？",
+  "agentSkillsEnabled": "已启用",
+  "agentSkillsDisabled": "已禁用",
+  "agentSkillsDetailTitle": "技能详情",
+  "agentSkillsLicense": "许可证",
+  "agentSkillsCompatibility": "兼容性",
+  "agentSkillsAllowedTools": "允许的工具",
+  "agentSkillsPath": "路径",
+  "agentSkillsInstructions": "指令内容",
+  "agentSkillsNoInstructions": "暂无指令内容。",
+  "agentSkillsBoundCount": "已绑定 {count} 个技能",
+  "@agentSkillsBoundCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "agentSkillsAssistantTab": "技能",
+  "agentSkillsAssistantEmpty": "暂无可用技能。\n请前往 设置 → Agent Skills 发现技能。",
+  "agentSkillsManageDirectories": "管理目录",
+  "agentSkillsDefaultDir": "默认",
+
+  "agentSkillEditorCreateTitle": "创建技能",
+  "agentSkillEditorEditTitle": "编辑技能",
+  "agentSkillEditorSave": "保存",
+  "agentSkillEditorMetadata": "元数据",
+  "agentSkillEditorName": "名称",
+  "agentSkillEditorNameRequired": "技能名称不能为空",
+  "agentSkillEditorNameInvalid": "仅支持字母、数字、连字符和下划线",
+  "agentSkillEditorDescription": "描述",
+  "agentSkillEditorDescriptionRequired": "描述不能为空",
+  "agentSkillEditorLicense": "许可证",
+  "agentSkillEditorCompatibility": "兼容性",
+  "agentSkillEditorAllowedTools": "允许的工具",
+  "agentSkillEditorAllowedToolsHelper": "逗号分隔的工具名，表示此技能可调用的工具",
+  "agentSkillEditorInstructions": "指令内容",
+  "agentSkillEditorInstructionsHelper": "Markdown 内容，技能激活时 LLM 会收到此指令",
+  "agentSkillEditorInstructionsRequired": "指令内容不能为空",
+
+  "agentSkillImportTitle": "导入技能",
+  "agentSkillImportFromZip": "从 ZIP 导入",
+  "agentSkillImportFromZipDesc": "选择包含 SKILL.md 及可选 scripts/references 的 .zip 文件",
+  "agentSkillImportSelectFile": "选择 ZIP 文件",
+  "agentSkillImportFromGitHub": "从 GitHub 导入",
+  "agentSkillImportFromGitHubDesc": "输入 GitHub 仓库 URL 或技能目录 URL",
+  "agentSkillImportFromGitHubAction": "导入",
+
+  "agentSkillExportTitle": "导出技能"
 }

@@ -4039,6 +4039,149 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get worldBookInjectionRoleAssistant => '助手';
+
+  @override
+  String get settingsPageAgentSkills => 'Agent Skills';
+
+  @override
+  String get agentSkillsTitle => 'Agent Skills';
+
+  @override
+  String get agentSkillsEmpty => '未发现任何技能。\n请添加技能目录或将 SKILL.md 文件放入默认技能文件夹。';
+
+  @override
+  String get agentSkillsRefresh => '刷新';
+
+  @override
+  String get agentSkillsDirectories => '技能目录';
+
+  @override
+  String get agentSkillsAddDirectory => '添加目录';
+
+  @override
+  String get agentSkillsRemoveDirectory => '移除';
+
+  @override
+  String get agentSkillsRemoveDirectoryConfirm => '确定要移除此技能目录吗？';
+
+  @override
+  String get agentSkillsEnabled => '已启用';
+
+  @override
+  String get agentSkillsDisabled => '已禁用';
+
+  @override
+  String get agentSkillsDetailTitle => '技能详情';
+
+  @override
+  String get agentSkillsLicense => '许可证';
+
+  @override
+  String get agentSkillsCompatibility => '兼容性';
+
+  @override
+  String get agentSkillsAllowedTools => '允许的工具';
+
+  @override
+  String get agentSkillsPath => '路径';
+
+  @override
+  String get agentSkillsInstructions => '指令内容';
+
+  @override
+  String get agentSkillsNoInstructions => '暂无指令内容。';
+
+  @override
+  String agentSkillsBoundCount(String count) {
+    return '已绑定 $count 个技能';
+  }
+
+  @override
+  String get agentSkillsAssistantTab => '技能';
+
+  @override
+  String get agentSkillsAssistantEmpty =>
+      '暂无可用技能。\n请前往 设置 → Agent Skills 发现技能。';
+
+  @override
+  String get agentSkillsManageDirectories => '管理目录';
+
+  @override
+  String get agentSkillsDefaultDir => '默认';
+
+  @override
+  String get agentSkillEditorCreateTitle => '创建技能';
+
+  @override
+  String get agentSkillEditorEditTitle => '编辑技能';
+
+  @override
+  String get agentSkillEditorSave => '保存';
+
+  @override
+  String get agentSkillEditorMetadata => '元数据';
+
+  @override
+  String get agentSkillEditorName => '名称';
+
+  @override
+  String get agentSkillEditorNameRequired => '技能名称不能为空';
+
+  @override
+  String get agentSkillEditorNameInvalid => '仅支持字母、数字、连字符和下划线';
+
+  @override
+  String get agentSkillEditorDescription => '描述';
+
+  @override
+  String get agentSkillEditorDescriptionRequired => '描述不能为空';
+
+  @override
+  String get agentSkillEditorLicense => '许可证';
+
+  @override
+  String get agentSkillEditorCompatibility => '兼容性';
+
+  @override
+  String get agentSkillEditorAllowedTools => '允许的工具';
+
+  @override
+  String get agentSkillEditorAllowedToolsHelper => '逗号分隔的工具名，表示此技能可调用的工具';
+
+  @override
+  String get agentSkillEditorInstructions => '指令内容';
+
+  @override
+  String get agentSkillEditorInstructionsHelper =>
+      'Markdown 内容，技能激活时 LLM 会收到此指令';
+
+  @override
+  String get agentSkillEditorInstructionsRequired => '指令内容不能为空';
+
+  @override
+  String get agentSkillImportTitle => '导入技能';
+
+  @override
+  String get agentSkillImportFromZip => '从 ZIP 导入';
+
+  @override
+  String get agentSkillImportFromZipDesc =>
+      '选择包含 SKILL.md 及可选 scripts/references 的 .zip 文件';
+
+  @override
+  String get agentSkillImportSelectFile => '选择 ZIP 文件';
+
+  @override
+  String get agentSkillImportFromGitHub => '从 GitHub 导入';
+
+  @override
+  String get agentSkillImportFromGitHubDesc => '输入 GitHub 仓库 URL 或技能目录 URL';
+
+  @override
+  String get agentSkillImportFromGitHubAction => '导入';
+
+  @override
+  String get agentSkillExportTitle => '导出技能';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).

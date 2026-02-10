@@ -10,6 +10,8 @@ import '../../../core/providers/settings_provider.dart';
 import '../../../core/services/mcp/mcp_tool_service.dart';
 import '../../../core/services/search/search_tool_service.dart';
 import '../../../core/services/function_calling/function_router.dart';
+import '../../../core/providers/agent_skill_provider.dart';
+import '../../../core/services/agent_skills/skill_tool_service.dart';
 
 /// 工具调用处理服务
 ///
@@ -185,6 +187,32 @@ class ToolHandlerService {
       }
     }
 
+    // Agent Skill tools (activate, read resource, run script)
+    if (supportsTools) {
+      try {
+        final skillProvider = contextProvider.read<AgentSkillProvider>();
+        final skillTools = AgentSkillToolService.buildToolDefinitions(skillProvider);
+        // Sanitize parameters for the target provider
+        final providerCfg = settings.getProviderConfig(providerKey);
+        final providerKind = ProviderConfig.classify(
+          providerCfg.id,
+          explicitType: providerCfg.providerType,
+        );
+        for (final st in skillTools) {
+          final fn = st['function'] as Map<String, dynamic>?;
+          if (fn != null && fn['parameters'] is Map<String, dynamic>) {
+            fn['parameters'] = sanitizeToolParametersForProvider(
+              fn['parameters'] as Map<String, dynamic>,
+              providerKind,
+            );
+          }
+        }
+        toolDefs.addAll(skillTools);
+      } catch (_) {
+        // AgentSkillProvider may not be available
+      }
+    }
+
     // Plan tool (allows the LLM to self-trigger planning)
     if (supportsTools && (assistant?.planMode ?? PlanMode.never) != PlanMode.never) {
       toolDefs.add(_buildPlanToolDefinition());
@@ -328,6 +356,21 @@ class ToolHandlerService {
       final memoryResult = await _handleMemoryToolCall(name, args, assistant);
       if (memoryResult != null) {
         return memoryResult;
+      }
+
+      // Agent Skill tools
+      if (AgentSkillToolService.isSkillTool(name)) {
+        try {
+          final skillProvider = contextProvider.read<AgentSkillProvider>();
+          final result = await AgentSkillToolService.handleToolCall(
+            name,
+            args,
+            skillProvider,
+          );
+          if (result != null) return result;
+        } catch (e) {
+          return 'Error: skill tool failed: $e';
+        }
       }
 
       // Local tools (FunctionRouter)
