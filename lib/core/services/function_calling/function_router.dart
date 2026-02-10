@@ -199,17 +199,56 @@ class FunctionRouter extends ChangeNotifier {
   }
 
   /// 初始化配置文件 — 如果不存在则创建默认配置
+  ///
+  /// 查找顺序:
+  /// 1. 用户友好路径: `%APPDATA%/kelivo/local_tools.json` (Windows)
+  ///    或 `~/Library/Application Support/kelivo/` (macOS)
+  /// 2. Flutter 默认路径: [configDir]/local_tools.json
+  ///    (通常是 `%APPDATA%/<orgName>/<appName>/`)
+  /// 如果用户友好路径存在配置文件则优先使用它。
   Future<void> initConfigFile(String configDir) async {
-    final filePath = '$configDir${Platform.pathSeparator}$_kLocalToolsFileName';
-    _localToolsConfigPath = filePath;
+    final defaultPath = '$configDir${Platform.pathSeparator}$_kLocalToolsFileName';
 
-    final file = File(filePath);
+    // Try user-friendly path first: %APPDATA%/kelivo/ (Windows) or equivalent
+    String? userFriendlyPath;
+    try {
+      if (Platform.isWindows) {
+        final appData = Platform.environment['APPDATA'];
+        if (appData != null && appData.isNotEmpty) {
+          userFriendlyPath = '$appData${Platform.pathSeparator}kelivo${Platform.pathSeparator}$_kLocalToolsFileName';
+        }
+      } else if (Platform.isMacOS) {
+        final home = Platform.environment['HOME'];
+        if (home != null && home.isNotEmpty) {
+          userFriendlyPath = '$home/Library/Application Support/kelivo/$_kLocalToolsFileName';
+        }
+      } else if (Platform.isLinux) {
+        final xdg = Platform.environment['XDG_CONFIG_HOME'];
+        final home = Platform.environment['HOME'];
+        final base = (xdg != null && xdg.isNotEmpty) ? xdg : (home != null ? '$home/.config' : null);
+        if (base != null) {
+          userFriendlyPath = '$base/kelivo/$_kLocalToolsFileName';
+        }
+      }
+    } catch (_) {}
+
+    // Prefer user-friendly path if it exists
+    if (userFriendlyPath != null && await File(userFriendlyPath).exists()) {
+      _localToolsConfigPath = userFriendlyPath;
+      await loadFromJsonFile(userFriendlyPath);
+      debugPrint('[FunctionRouter] Loaded config from user path: $userFriendlyPath');
+      return;
+    }
+
+    // Fallback to Flutter default path
+    _localToolsConfigPath = defaultPath;
+    final file = File(defaultPath);
     if (await file.exists()) {
-      await loadFromJsonFile(filePath);
+      await loadFromJsonFile(defaultPath);
     } else {
       // 创建默认配置文件
-      await saveToJsonFile(filePath);
-      debugPrint('[FunctionRouter] Created default config: $filePath');
+      await saveToJsonFile(defaultPath);
+      debugPrint('[FunctionRouter] Created default config: $defaultPath');
     }
   }
 

@@ -225,14 +225,36 @@ class LocalProgramHandler {
     final stopwatch = Stopwatch()..start();
 
     try {
-      // 从 arguments 或 executorConfig 解析命令
-      final rawProgram = (arguments['program'] ??
-              executorConfig?['command'] ??
+      // 从 executorConfig 或 arguments 解析命令
+      // executorConfig['command'] 是用户在 local_tools.json 中配置的完整可执行路径，
+      // 优先级最高；arguments['program'] 是 LLM 传入的程序名/别名，作为 fallback。
+      final configCommand = (executorConfig?['command'] ?? '').toString().trim();
+      final argProgram = (arguments['program'] ??
+              arguments['command'] ??
+              arguments['cmd'] ??
               '')
           .toString()
           .trim();
+      final rawProgram = configCommand.isNotEmpty ? configCommand : argProgram;
 
-      if (rawProgram.isEmpty) {
+      // If command comes from LLM arguments (not from JSON config) and contains
+      // spaces, split it into command + arguments (e.g. "dir /s /b" → "dir", ["/s", "/b"]).
+      // NEVER split configCommand — it's a full executable path that may contain spaces
+      // (e.g. "C:\Program Files (x86)\UltraISO\UltraISO.exe").
+      String effectiveProgram = rawProgram;
+      List<String> parsedArgs = [];
+      if (configCommand.isEmpty &&
+          rawProgram.contains(' ') &&
+          arguments['args'] == null &&
+          arguments['file'] == null) {
+        final parts = _shellSplit(rawProgram);
+        if (parts.isNotEmpty) {
+          effectiveProgram = parts.first;
+          parsedArgs = parts.sublist(1);
+        }
+      }
+
+      if (effectiveProgram.isEmpty) {
         stopwatch.stop();
         return ToolResult.failure(
           'No program specified',
@@ -241,16 +263,16 @@ class LocalProgramHandler {
       }
 
       // 安全检查
-      if (isDangerousCommand(rawProgram)) {
+      if (isDangerousCommand(effectiveProgram)) {
         stopwatch.stop();
         return ToolResult.failure(
-          'Command "$rawProgram" is blocked for safety reasons',
+          'Command "$effectiveProgram" is blocked for safety reasons',
           executionTime: stopwatch.elapsed,
         );
       }
 
       // 解析实际命令
-      final resolvedCommand = resolveSafeProgram(rawProgram) ?? rawProgram;
+      final resolvedCommand = resolveSafeProgram(effectiveProgram) ?? effectiveProgram;
 
       // 构建参数列表
       final List<String> programArgs = [];
@@ -262,6 +284,11 @@ class LocalProgramHandler {
         );
       }
 
+      // 从命令行拆分出的参数 (e.g. "dir /s /b" → parsedArgs=[/s, /b])
+      if (parsedArgs.isNotEmpty) {
+        programArgs.addAll(parsedArgs);
+      }
+
       // 来自 arguments 的参数
       if (arguments['args'] is List) {
         programArgs.addAll(
@@ -269,10 +296,24 @@ class LocalProgramHandler {
         );
       }
 
-      // file 参数
-      final file = (arguments['file'] ?? '').toString().trim();
+      // file 参数 (兼容 file, file_path, filePath, filepath 等变体)
+      final file = (arguments['file'] ??
+              arguments['file_path'] ??
+              arguments['filePath'] ??
+              arguments['filepath'] ??
+              '')
+          .toString()
+          .trim();
       if (file.isNotEmpty) {
         programArgs.add(file);
+      }
+
+      // 兼容 LLM 可能传入的其他常见参数名 (path, dir, directory, url, input)
+      for (final altKey in ['path', 'dir', 'directory', 'url', 'input', 'target']) {
+        final val = (arguments[altKey] ?? '').toString().trim();
+        if (val.isNotEmpty) {
+          programArgs.add(val);
+        }
       }
 
       // 执行模式
@@ -493,5 +534,37 @@ class LocalProgramHandler {
     final tools = getDefaultLocalTools();
     return const JsonEncoder.withIndent('  ')
         .convert(tools.map((t) => t.toJson()).toList());
+  }
+
+  /// Shell-aware string splitting that respects quoted segments.
+  ///
+  /// Examples:
+  ///   `dir /s /b` → `['dir', '/s', '/b']`
+  ///   `dir "%USERPROFILE%\Desktop" /s /b` → `['dir', '%USERPROFILE%\Desktop', '/s', '/b']`
+  static List<String> _shellSplit(String input) {
+    final result = <String>[];
+    final buf = StringBuffer();
+    String? quote; // current quote char (' or ")
+    for (int i = 0; i < input.length; i++) {
+      final c = input[i];
+      if (quote != null) {
+        if (c == quote) {
+          quote = null; // closing quote — don't add quote char itself
+        } else {
+          buf.writeCharCode(c.codeUnitAt(0));
+        }
+      } else if (c == '"' || c == "'") {
+        quote = c;
+      } else if (c == ' ' || c == '\t') {
+        if (buf.isNotEmpty) {
+          result.add(buf.toString());
+          buf.clear();
+        }
+      } else {
+        buf.writeCharCode(c.codeUnitAt(0));
+      }
+    }
+    if (buf.isNotEmpty) result.add(buf.toString());
+    return result;
   }
 }

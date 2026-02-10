@@ -36,6 +36,7 @@ import 'core/services/mcp/mcp_tool_service.dart';
 import 'core/services/function_calling/function_router.dart';
 import 'core/services/logging/flutter_logger.dart';
 import 'utils/sandbox_path_resolver.dart';
+import 'utils/app_directories.dart';
 import 'shared/widgets/snackbar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:system_fonts/system_fonts.dart';
@@ -53,6 +54,7 @@ final RouteObserver<ModalRoute<dynamic>> routeObserver =
 bool _didCheckUpdates = false; // one-time update check flag
 bool _didEnsureAssistants = false; // ensure defaults after l10n ready
 bool _didEnsureSystemFonts = false; // one-time system fonts load when needed
+bool _didLoadLocalTools = false; // one-time local tools config load
 
 Future<void> main() async {
   await runZoned(
@@ -234,6 +236,17 @@ class MyApp extends StatelessWidget {
                   }
                 } catch (_) {}
               });
+
+              // Load local tools configuration from user's appdata directory
+              if (!_didLoadLocalTools) {
+                _didLoadLocalTools = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
+                  try {
+                    final appDir = await AppDirectories.getAppDataDirectory();
+                    await context.read<FunctionRouter>().initConfigFile(appDir.path);
+                  } catch (_) {}
+                });
+              }
 
               // Android-only: ensure background execution matches setting and prepare notifications if needed
               WidgetsBinding.instance.addPostFrameCallback((_) async {
