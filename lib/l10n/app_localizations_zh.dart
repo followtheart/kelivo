@@ -3513,6 +3513,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get assistantEditMemorySwitchDescription => '允许助手主动存储并在对话间引用用户相关信息';
 
   @override
+  String get assistantEditGlobalMemorySwitchTitle => '继承全局记忆';
+
+  @override
   String get assistantEditRecentChatsSwitchTitle => '参考历史聊天记录';
 
   @override
@@ -4182,6 +4185,132 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentSkillExportTitle => '导出技能';
+
+  @override
+  String get memoryManagementTitle => '记忆管理';
+
+  @override
+  String get memoryManagementGlobalTab => '全局';
+
+  @override
+  String get memoryManagementSearchHint => '搜索记忆...';
+
+  @override
+  String get memoryManagementFilterAll => '全部';
+
+  @override
+  String get memoryManagementEmpty => '暂无记忆';
+
+  @override
+  String memoryManagementCount(int count) {
+    return '共 $count 条记忆';
+  }
+
+  @override
+  String get memoryManagementAddButton => '添加记忆';
+
+  @override
+  String get memoryManagementAddTitle => '添加记忆';
+
+  @override
+  String get memoryManagementEditTitle => '编辑记忆';
+
+  @override
+  String get memoryManagementContentHint => '输入记忆内容';
+
+  @override
+  String get memoryManagementCategoryLabel => '分类';
+
+  @override
+  String get memoryManagementImportanceLabel => '重要性';
+
+  @override
+  String get memoryManagementCancel => '取消';
+
+  @override
+  String get memoryManagementSave => '保存';
+
+  @override
+  String get memoryManagementDeleteTitle => '删除记忆？';
+
+  @override
+  String get memoryManagementDeleteConfirm => '删除';
+
+  @override
+  String get memoryManagementClearAll => '清空全部记忆';
+
+  @override
+  String get memoryManagementClearAllTitle => '清空全部记忆？';
+
+  @override
+  String get memoryManagementClearAllMessage => '这将永久删除当前分页下的所有记忆，此操作不可撤销。';
+
+  @override
+  String get memoryManagementSortByDate => '按日期排序';
+
+  @override
+  String get memoryManagementSortByImportance => '按重要性排序';
+
+  @override
+  String get memoryManagementSortDate => '日期';
+
+  @override
+  String get memoryManagementSortImportance => '重要性';
+
+  @override
+  String get memoryManagementExport => '导出记忆';
+
+  @override
+  String get memoryManagementPrivateLabel => '私有';
+
+  @override
+  String get memoryManagementCatUserProfile => '用户信息';
+
+  @override
+  String get memoryManagementCatPreference => '偏好';
+
+  @override
+  String get memoryManagementCatFact => '事实';
+
+  @override
+  String get memoryManagementCatTask => '任务';
+
+  @override
+  String get memoryManagementCatDecision => '决策';
+
+  @override
+  String get memoryManagementCatLearning => '学习';
+
+  @override
+  String get memoryManagementCatCustom => '自定义';
+
+  @override
+  String get memoryManagementSourceAiAuto => 'AI 自动';
+
+  @override
+  String get memoryManagementSourceAiTool => 'AI 工具';
+
+  @override
+  String get memoryManagementSourceManual => '手动';
+
+  @override
+  String get memoryManagementSourceSystem => '系统';
+
+  @override
+  String assistantEditMemoryCountAssistant(int count) {
+    return '该助手的记忆: $count 条';
+  }
+
+  @override
+  String assistantEditMemoryCountGlobal(int count) {
+    return '全局记忆: $count 条';
+  }
+
+  @override
+  String get assistantEditManageAssistantMemoryLink => '管理该助手记忆 →';
+
+  @override
+  String get assistantEditManageGlobalMemoryLink => '管理全局记忆 →';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -7662,6 +7791,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get assistantEditMemorySwitchDescription => '允许助手主动存储并在对话间引用用户相关信息';
 
   @override
+  String get assistantEditGlobalMemorySwitchTitle => '继承全局记忆';
+
+  @override
   String get assistantEditRecentChatsSwitchTitle => '参考历史聊天记录';
 
   @override
@@ -8167,6 +8299,132 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get worldBookInjectionRoleAssistant => '助手';
+
+  @override
+  String get memoryManagementTitle => '记忆管理';
+
+  @override
+  String get memoryManagementGlobalTab => '全局';
+
+  @override
+  String get memoryManagementSearchHint => '搜索记忆...';
+
+  @override
+  String get memoryManagementFilterAll => '全部';
+
+  @override
+  String get memoryManagementEmpty => '暂无记忆';
+
+  @override
+  String memoryManagementCount(int count) {
+    return '共 $count 条记忆';
+  }
+
+  @override
+  String get memoryManagementAddButton => '添加记忆';
+
+  @override
+  String get memoryManagementAddTitle => '添加记忆';
+
+  @override
+  String get memoryManagementEditTitle => '编辑记忆';
+
+  @override
+  String get memoryManagementContentHint => '输入记忆内容';
+
+  @override
+  String get memoryManagementCategoryLabel => '分类';
+
+  @override
+  String get memoryManagementImportanceLabel => '重要性';
+
+  @override
+  String get memoryManagementCancel => '取消';
+
+  @override
+  String get memoryManagementSave => '保存';
+
+  @override
+  String get memoryManagementDeleteTitle => '删除记忆？';
+
+  @override
+  String get memoryManagementDeleteConfirm => '删除';
+
+  @override
+  String get memoryManagementClearAll => '清空全部记忆';
+
+  @override
+  String get memoryManagementClearAllTitle => '清空全部记忆？';
+
+  @override
+  String get memoryManagementClearAllMessage => '这将永久删除当前分页下的所有记忆，此操作不可撤销。';
+
+  @override
+  String get memoryManagementSortByDate => '按日期排序';
+
+  @override
+  String get memoryManagementSortByImportance => '按重要性排序';
+
+  @override
+  String get memoryManagementSortDate => '日期';
+
+  @override
+  String get memoryManagementSortImportance => '重要性';
+
+  @override
+  String get memoryManagementExport => '导出记忆';
+
+  @override
+  String get memoryManagementPrivateLabel => '私有';
+
+  @override
+  String get memoryManagementCatUserProfile => '用户信息';
+
+  @override
+  String get memoryManagementCatPreference => '偏好';
+
+  @override
+  String get memoryManagementCatFact => '事实';
+
+  @override
+  String get memoryManagementCatTask => '任务';
+
+  @override
+  String get memoryManagementCatDecision => '决策';
+
+  @override
+  String get memoryManagementCatLearning => '学习';
+
+  @override
+  String get memoryManagementCatCustom => '自定义';
+
+  @override
+  String get memoryManagementSourceAiAuto => 'AI 自动';
+
+  @override
+  String get memoryManagementSourceAiTool => 'AI 工具';
+
+  @override
+  String get memoryManagementSourceManual => '手动';
+
+  @override
+  String get memoryManagementSourceSystem => '系统';
+
+  @override
+  String assistantEditMemoryCountAssistant(int count) {
+    return '该助手的记忆: $count 条';
+  }
+
+  @override
+  String assistantEditMemoryCountGlobal(int count) {
+    return '全局记忆: $count 条';
+  }
+
+  @override
+  String get assistantEditManageAssistantMemoryLink => '管理该助手记忆 →';
+
+  @override
+  String get assistantEditManageGlobalMemoryLink => '管理全局记忆 →';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -11675,6 +11933,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get assistantEditMemorySwitchDescription => '允許助理主動儲存並在對話間引用使用者相關資訊';
 
   @override
+  String get assistantEditGlobalMemorySwitchTitle => '繼承全局記憶';
+
+  @override
   String get assistantEditRecentChatsSwitchTitle => '參考歷史聊天記錄';
 
   @override
@@ -12198,4 +12459,130 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get worldBookInjectionRoleAssistant => '助手';
+
+  @override
+  String get memoryManagementTitle => '記憶管理';
+
+  @override
+  String get memoryManagementGlobalTab => '全局';
+
+  @override
+  String get memoryManagementSearchHint => '搜尋記憶...';
+
+  @override
+  String get memoryManagementFilterAll => '全部';
+
+  @override
+  String get memoryManagementEmpty => '暫無記憶';
+
+  @override
+  String memoryManagementCount(int count) {
+    return '共 $count 條記憶';
+  }
+
+  @override
+  String get memoryManagementAddButton => '新增記憶';
+
+  @override
+  String get memoryManagementAddTitle => '新增記憶';
+
+  @override
+  String get memoryManagementEditTitle => '編輯記憶';
+
+  @override
+  String get memoryManagementContentHint => '輸入記憶內容';
+
+  @override
+  String get memoryManagementCategoryLabel => '分類';
+
+  @override
+  String get memoryManagementImportanceLabel => '重要性';
+
+  @override
+  String get memoryManagementCancel => '取消';
+
+  @override
+  String get memoryManagementSave => '儲存';
+
+  @override
+  String get memoryManagementDeleteTitle => '刪除記憶？';
+
+  @override
+  String get memoryManagementDeleteConfirm => '刪除';
+
+  @override
+  String get memoryManagementClearAll => '清空全部記憶';
+
+  @override
+  String get memoryManagementClearAllTitle => '清空全部記憶？';
+
+  @override
+  String get memoryManagementClearAllMessage => '這將永久刪除當前分頁下的所有記憶，此操作不可撤銷。';
+
+  @override
+  String get memoryManagementSortByDate => '按日期排序';
+
+  @override
+  String get memoryManagementSortByImportance => '按重要性排序';
+
+  @override
+  String get memoryManagementSortDate => '日期';
+
+  @override
+  String get memoryManagementSortImportance => '重要性';
+
+  @override
+  String get memoryManagementExport => '匯出記憶';
+
+  @override
+  String get memoryManagementPrivateLabel => '私有';
+
+  @override
+  String get memoryManagementCatUserProfile => '使用者資訊';
+
+  @override
+  String get memoryManagementCatPreference => '偏好';
+
+  @override
+  String get memoryManagementCatFact => '事實';
+
+  @override
+  String get memoryManagementCatTask => '任務';
+
+  @override
+  String get memoryManagementCatDecision => '決策';
+
+  @override
+  String get memoryManagementCatLearning => '學習';
+
+  @override
+  String get memoryManagementCatCustom => '自訂';
+
+  @override
+  String get memoryManagementSourceAiAuto => 'AI 自動';
+
+  @override
+  String get memoryManagementSourceAiTool => 'AI 工具';
+
+  @override
+  String get memoryManagementSourceManual => '手動';
+
+  @override
+  String get memoryManagementSourceSystem => '系統';
+
+  @override
+  String assistantEditMemoryCountAssistant(int count) {
+    return '該助手的記憶: $count 條';
+  }
+
+  @override
+  String assistantEditMemoryCountGlobal(int count) {
+    return '全局記憶: $count 條';
+  }
+
+  @override
+  String get assistantEditManageAssistantMemoryLink => '管理該助手記憶 →';
+
+  @override
+  String get assistantEditManageGlobalMemoryLink => '管理全局記憶 →';
 }

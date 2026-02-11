@@ -7,6 +7,7 @@ import '../../../core/models/chat_input_data.dart';
 import '../../../core/models/chat_message.dart';
 import '../../../core/models/conversation.dart';
 import '../../../core/models/instruction_injection.dart';
+import '../../../core/models/memory.dart';
 import '../../../core/models/world_book.dart';
 import '../../../core/providers/memory_provider.dart';
 import '../../../core/providers/settings_provider.dart';
@@ -422,6 +423,12 @@ class MessageBuilderService {
   }
 
   /// Inject memory prompts and recent chats reference into apiMessages.
+  ///
+  /// **Layer 1 – Auto-inject** (progressive disclosure):
+  /// Only high-importance memories (importance >= 4) are injected
+  /// automatically. A token budget caps the injection size.
+  /// The AI can use `search_memory` / `get_memory` tools to retrieve
+  /// lower-importance or more specific memories on demand (Layer 2).
   Future<void> injectMemoryAndRecentChats(
     List<Map<String, dynamic>> apiMessages,
     Assistant? assistant, {
@@ -430,42 +437,81 @@ class MessageBuilderService {
     try {
       if (assistant?.enableMemory == true) {
         final mp = contextProvider.read<MemoryProvider>();
-        final mems = mp.getForAssistant(assistant!.id);
-        final buf = StringBuffer();
-        buf.writeln('## Memories');
-        buf.writeln(
-          'These are memories that you can reference in the future conversations.',
+
+        // ── Layer 1: auto-inject important memories ──
+        final includeGlobal = assistant!.enableGlobalMemory;
+        final importantMems = mp.getImportant(
+          assistantId: assistant.id,
+          minImportance: 4,
+          limit: 30,
+          includeGlobal: includeGlobal,
         );
-        buf.writeln('<memories>');
-        for (final m in mems) {
-          buf.writeln('<record>');
-          buf.writeln('<id>${m.id}</id>');
-          buf.writeln('<content>${m.content}</content>');
-          buf.writeln('</record>');
+
+        // Token budget: ~800 tokens ≈ 3200 chars (rough CJK estimate at ~4 chars/token).
+        const maxChars = 3200;
+        final injected = <Memory>[];
+        var totalChars = 0;
+
+        for (final m in importantMems) {
+          // Estimate per record: id(4) + category(15) + importance(1) +
+          // concepts(~30) + content + xml tags(~70)
+          final recordLen = m.content.length + (m.concepts.join(', ')).length + 90;
+          if (totalChars + recordLen > maxChars && injected.isNotEmpty) break;
+          injected.add(m);
+          totalChars += recordLen;
         }
-        buf.writeln('</memories>');
+
+        final totalCount = mp.countForAssistant(assistant.id, includeGlobal: includeGlobal);
+
+        final buf = StringBuffer();
+        buf.writeln('<memory_context>');
+        if (injected.isNotEmpty) {
+          buf.writeln('<important_memories>');
+          for (final m in injected) {
+            buf.write('<m id="${m.id}" cat="${m.category.dbValue}"');
+            if (m.concepts.isNotEmpty) {
+              buf.write(' tags="${m.concepts.join(',')}"');
+            }
+            buf.write(' imp="${m.importance}">');
+            buf.write(m.content);
+            buf.writeln('</m>');
+          }
+          buf.writeln('</important_memories>');
+        }
+        buf.writeln('<stats total="$totalCount" injected="${injected.length}" />');
+        buf.writeln('</memory_context>');
+
+        // ── System Prompt: Memory Tool guidance ──
         buf.writeln('''
-## Memory Tool
-你是一个无状态的大模型，你无法存储记忆，因此为了记住信息，你需要使用**记忆工具**。
-你可以使用 `create_memory`, `edit_memory`, `delete_memory` 工具创建、更新或删除记忆。
-- 如果记忆中没有相关信息，请使用 create_memory 创建一条新的记录。
-- 如果已有相关记录，请使用 edit_memory 更新内容。
-- 若记忆过时或无用，请使用 delete_memory 删除。
-这些记忆会自动包含在未来的对话上下文中，在<memories>标签内。
-请勿在记忆中存储敏感信息，敏感信息包括：用户的民族、宗教信仰、性取向、政治观点及党派归属、性生活、犯罪记录等。
-在与用户聊天过程中，你可以像一个私人秘书一样**主动的**记录用户相关的信息到记忆里，包括但不限于：
-- 用户昵称/姓名
-- 年龄/性别/兴趣爱好
-- 计划事项等
-- 聊天风格偏好
-- 工作相关
-- 首次聊天时间
-- ...
-请主动调用工具记录，而不是需要用户要求。
-记忆如果包含日期信息，请包含在内，请使用绝对时间格式，并且当前时间是 ${DateTime.now().toIso8601String()}。
-无需告知用户你已更改记忆记录，也不要在对话中直接显示记忆内容，除非用户主动要求。
-相似或相关的记忆应合并为一条记录，而不要重复记录，过时记录应删除。
-你可以在和用户闲聊的时候暗示用户你能记住东西。
+## Memory System
+你拥有持久记忆能力。上方 <memory_context> 已注入最重要的记忆。
+其余 ${totalCount - injected.length} 条低重要性记忆可通过搜索获取。
+
+### 记忆工具
+- `create_memory(content, category?, importance?, concepts?, scope?)`: 创建新记忆
+- `edit_memory(id, content?, category?, importance?, concepts?)`: 更新记忆
+- `delete_memory(id)`: 删除记忆
+- `search_memory(query, category?, scope?, limit?)`: 搜索记忆（返回摘要列表）
+- `get_memory(ids)`: 批量获取完整记忆内容
+
+### 参数说明
+- **category**: user_profile | preference | fact | task | decision | learning | custom
+- **importance**: 1-5 (5=核心用户信息, 3=普通, 1=临时)
+- **concepts**: 逗号分隔的标签，如 "work,project"
+- **scope**: global (跨助手共享) | assistant (仅当前助手，默认)
+
+### 使用原则
+1. **主动记录**: 在对话中主动识别并记录用户信息、偏好、计划等，无需用户要求。
+2. **先搜后记**: 创建新记忆前**必须**先用 search_memory 搜索相关关键词，检查是否已存在类似记忆。如果搜索到相似内容，使用 edit_memory 更新已有记录而不是创建新的。
+3. **合并更新**: 相似或相关的记忆应合并为一条记录。当发现多条含义重叠的记忆时，保留最完整的一条并 edit_memory 补充信息，delete_memory 删除冗余条目。
+4. **按需搜索**: 当需要回忆用户历史信息时，使用 search_memory 查找，再用 get_memory 获取详情。
+5. **分类标注**: 合理使用 category 和 concepts 便于检索。
+6. **重要性评估**: 核心用户信息 importance=5，临时信息 importance=1-2。低重要性记忆会随时间自动衰减并最终被清理。
+7. **全局 vs 助手**: 用户通用信息（姓名、爱好等）用 scope=global。
+8. **静默操作**: 无需告知用户你在操作记忆，除非用户主动询问。
+9. **隐私保护**: 不要记录敏感信息（民族、宗教、政治、犯罪记录等）。
+10. **时间标注**: 记忆包含日期信息时使用绝对时间格式，当前时间: ${DateTime.now().toIso8601String()}。
+11. **清理过时**: 发现对话中提到的事实与已有记忆矛盾时，及时 edit_memory 更新或 delete_memory 清除过时信息。可以在和用户闲聊的时候暗示你能记住东西。
 ''');
         _appendToSystemMessage(apiMessages, buf.toString());
       }

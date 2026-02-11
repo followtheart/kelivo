@@ -3649,6 +3649,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow the assistant to create and use memories across chats.';
 
   @override
+  String get assistantEditGlobalMemorySwitchTitle => 'Inherit Global Memories';
+
+  @override
   String get assistantEditRecentChatsSwitchTitle => 'Recent Chats Reference';
 
   @override
@@ -4337,4 +4340,132 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agentSkillExportTitle => 'Export Skill';
+
+  @override
+  String get memoryManagementTitle => 'Memory Management';
+
+  @override
+  String get memoryManagementGlobalTab => 'Global';
+
+  @override
+  String get memoryManagementSearchHint => 'Search memories...';
+
+  @override
+  String get memoryManagementFilterAll => 'All';
+
+  @override
+  String get memoryManagementEmpty => 'No memories yet';
+
+  @override
+  String memoryManagementCount(int count) {
+    return '$count memories total';
+  }
+
+  @override
+  String get memoryManagementAddButton => 'Add Memory';
+
+  @override
+  String get memoryManagementAddTitle => 'Add Memory';
+
+  @override
+  String get memoryManagementEditTitle => 'Edit Memory';
+
+  @override
+  String get memoryManagementContentHint => 'Enter memory content';
+
+  @override
+  String get memoryManagementCategoryLabel => 'Category';
+
+  @override
+  String get memoryManagementImportanceLabel => 'Importance';
+
+  @override
+  String get memoryManagementCancel => 'Cancel';
+
+  @override
+  String get memoryManagementSave => 'Save';
+
+  @override
+  String get memoryManagementDeleteTitle => 'Delete Memory?';
+
+  @override
+  String get memoryManagementDeleteConfirm => 'Delete';
+
+  @override
+  String get memoryManagementClearAll => 'Clear All Memories';
+
+  @override
+  String get memoryManagementClearAllTitle => 'Clear All Memories?';
+
+  @override
+  String get memoryManagementClearAllMessage =>
+      'This will permanently delete all memories in this tab. This action cannot be undone.';
+
+  @override
+  String get memoryManagementSortByDate => 'Sort by date';
+
+  @override
+  String get memoryManagementSortByImportance => 'Sort by importance';
+
+  @override
+  String get memoryManagementSortDate => 'Date';
+
+  @override
+  String get memoryManagementSortImportance => 'Importance';
+
+  @override
+  String get memoryManagementExport => 'Export Memories';
+
+  @override
+  String get memoryManagementPrivateLabel => 'Private';
+
+  @override
+  String get memoryManagementCatUserProfile => 'User Profile';
+
+  @override
+  String get memoryManagementCatPreference => 'Preference';
+
+  @override
+  String get memoryManagementCatFact => 'Fact';
+
+  @override
+  String get memoryManagementCatTask => 'Task';
+
+  @override
+  String get memoryManagementCatDecision => 'Decision';
+
+  @override
+  String get memoryManagementCatLearning => 'Learning';
+
+  @override
+  String get memoryManagementCatCustom => 'Custom';
+
+  @override
+  String get memoryManagementSourceAiAuto => 'AI Auto';
+
+  @override
+  String get memoryManagementSourceAiTool => 'AI Tool';
+
+  @override
+  String get memoryManagementSourceManual => 'Manual';
+
+  @override
+  String get memoryManagementSourceSystem => 'System';
+
+  @override
+  String assistantEditMemoryCountAssistant(int count) {
+    return 'Assistant memories: $count';
+  }
+
+  @override
+  String assistantEditMemoryCountGlobal(int count) {
+    return 'Global memories: $count';
+  }
+
+  @override
+  String get assistantEditManageAssistantMemoryLink =>
+      'Manage assistant memories →';
+
+  @override
+  String get assistantEditManageGlobalMemoryLink => 'Manage global memories →';
 }

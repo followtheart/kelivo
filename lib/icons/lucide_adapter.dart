@@ -162,5 +162,17 @@ class Lucide {
   static const IconData FolderInput = lucide.LucideIcons.folderInput;
   static const IconData FolderOutput = lucide.LucideIcons.folderOutput;
   static const IconData Save = lucide.LucideIcons.save;
+  static const IconData Star = lucide.LucideIcons.star;
+  static const IconData Tag = lucide.LucideIcons.tag;
+  static const IconData Clock = lucide.LucideIcons.clock;
+  static const IconData AlertTriangle = lucide.LucideIcons.triangleAlert;
+  static const IconData Lightbulb = lucide.LucideIcons.lightbulb;
+  static const IconData CircleUser = lucide.LucideIcons.circleUser;
+  static const IconData SlidersHorizontal = lucide.LucideIcons.slidersHorizontal;
+  static const IconData ArrowUpDown = lucide.LucideIcons.arrowUpDown;
+  static const IconData ListFilter = lucide.LucideIcons.listFilter;
+  static const IconData Milestone = lucide.LucideIcons.milestone;
+  static const IconData GraduationCap = lucide.LucideIcons.graduationCap;
+  static const IconData CircleCheck = lucide.LucideIcons.circleCheck;
   static const IconData package2 = lucide.LucideIcons.package2;
 }

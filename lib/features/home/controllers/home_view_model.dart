@@ -334,6 +334,13 @@ class HomeViewModel extends ChangeNotifier {
     // Flush current conversation progress before switching
     await _chatActions.flushConversationProgress(currentConversation);
 
+    // Trigger summary generation for the conversation being left
+    final leavingId = currentConversation?.id;
+    if (leavingId != null && leavingId != id) {
+      // Fire-and-forget: don't block the switch
+      _maybeGenerateSummaryFor(leavingId);
+    }
+
     // Reset processing state on switch
     isProcessingFiles.value = false;
 
@@ -353,6 +360,12 @@ class HomeViewModel extends ChangeNotifier {
   Future<void> createNewConversation() async {
     // Flush current conversation progress before creating new
     await _chatActions.flushConversationProgress(currentConversation);
+
+    // Trigger summary generation for the conversation being left
+    final leavingId = currentConversation?.id;
+    if (leavingId != null) {
+      _maybeGenerateSummaryFor(leavingId);
+    }
 
     // Reset processing state on create
     isProcessingFiles.value = false;

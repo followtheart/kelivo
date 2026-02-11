@@ -27,6 +27,7 @@ class Assistant {
   final List<Map<String, String>> customBody; // [{key:'foo', value:'{"a":1}'}]
   // Memory features
   final bool enableMemory; // assistant memory feature switch
+  final bool enableGlobalMemory; // inherit global memories into this assistant
   final bool enableRecentChatsReference; // include recent chat titles in prompt
   // Preset conversation messages (ordered)
   final List<PresetMessage> presetMessages;
@@ -57,6 +58,7 @@ class Assistant {
     this.customHeaders = const <Map<String, String>>[],
     this.customBody = const <Map<String, String>>[],
     this.enableMemory = false,
+    this.enableGlobalMemory = true,
     this.enableRecentChatsReference = false,
     this.presetMessages = const <PresetMessage>[],
     this.regexRules = const <AssistantRegex>[],
@@ -85,6 +87,7 @@ class Assistant {
     List<Map<String, String>>? customHeaders,
     List<Map<String, String>>? customBody,
     bool? enableMemory,
+    bool? enableGlobalMemory,
     bool? enableRecentChatsReference,
     List<PresetMessage>? presetMessages,
     List<AssistantRegex>? regexRules,
@@ -119,6 +122,7 @@ class Assistant {
       customHeaders: customHeaders ?? this.customHeaders,
       customBody: customBody ?? this.customBody,
       enableMemory: enableMemory ?? this.enableMemory,
+      enableGlobalMemory: enableGlobalMemory ?? this.enableGlobalMemory,
       enableRecentChatsReference:
           enableRecentChatsReference ?? this.enableRecentChatsReference,
       presetMessages: presetMessages ?? this.presetMessages,
@@ -149,6 +153,7 @@ class Assistant {
         'customHeaders': customHeaders,
         'customBody': customBody,
         'enableMemory': enableMemory,
+        'enableGlobalMemory': enableGlobalMemory,
         'enableRecentChatsReference': enableRecentChatsReference,
         'presetMessages': PresetMessage.encodeList(presetMessages),
         'regexRules': regexRules.map((e) => e.toJson()).toList(),
@@ -201,6 +206,7 @@ class Assistant {
           return const <Map<String, String>>[];
         })(),
         enableMemory: json['enableMemory'] as bool? ?? false,
+        enableGlobalMemory: json['enableGlobalMemory'] as bool? ?? true,
         enableRecentChatsReference:
             json['enableRecentChatsReference'] as bool? ?? false,
         presetMessages: (() {

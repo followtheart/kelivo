@@ -6836,6 +6836,12 @@ abstract class AppLocalizations {
   /// **'Allow the assistant to create and use memories across chats.'**
   String get assistantEditMemorySwitchDescription;
 
+  /// No description provided for @assistantEditGlobalMemorySwitchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inherit Global Memories'**
+  String get assistantEditGlobalMemorySwitchTitle;
+
   /// No description provided for @assistantEditRecentChatsSwitchTitle.
   ///
   /// In en, this message translates to:
@@ -8119,6 +8125,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export Skill'**
   String get agentSkillExportTitle;
+
+  /// No description provided for @memoryManagementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory Management'**
+  String get memoryManagementTitle;
+
+  /// No description provided for @memoryManagementGlobalTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Global'**
+  String get memoryManagementGlobalTab;
+
+  /// No description provided for @memoryManagementSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search memories...'**
+  String get memoryManagementSearchHint;
+
+  /// No description provided for @memoryManagementFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get memoryManagementFilterAll;
+
+  /// No description provided for @memoryManagementEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No memories yet'**
+  String get memoryManagementEmpty;
+
+  /// No description provided for @memoryManagementCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} memories total'**
+  String memoryManagementCount(int count);
+
+  /// No description provided for @memoryManagementAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Memory'**
+  String get memoryManagementAddButton;
+
+  /// No description provided for @memoryManagementAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Memory'**
+  String get memoryManagementAddTitle;
+
+  /// No description provided for @memoryManagementEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Memory'**
+  String get memoryManagementEditTitle;
+
+  /// No description provided for @memoryManagementContentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter memory content'**
+  String get memoryManagementContentHint;
+
+  /// No description provided for @memoryManagementCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get memoryManagementCategoryLabel;
+
+  /// No description provided for @memoryManagementImportanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Importance'**
+  String get memoryManagementImportanceLabel;
+
+  /// No description provided for @memoryManagementCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get memoryManagementCancel;
+
+  /// No description provided for @memoryManagementSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get memoryManagementSave;
+
+  /// No description provided for @memoryManagementDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Memory?'**
+  String get memoryManagementDeleteTitle;
+
+  /// No description provided for @memoryManagementDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get memoryManagementDeleteConfirm;
+
+  /// No description provided for @memoryManagementClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All Memories'**
+  String get memoryManagementClearAll;
+
+  /// No description provided for @memoryManagementClearAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All Memories?'**
+  String get memoryManagementClearAllTitle;
+
+  /// No description provided for @memoryManagementClearAllMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete all memories in this tab. This action cannot be undone.'**
+  String get memoryManagementClearAllMessage;
+
+  /// No description provided for @memoryManagementSortByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by date'**
+  String get memoryManagementSortByDate;
+
+  /// No description provided for @memoryManagementSortByImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by importance'**
+  String get memoryManagementSortByImportance;
+
+  /// No description provided for @memoryManagementSortDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get memoryManagementSortDate;
+
+  /// No description provided for @memoryManagementSortImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'Importance'**
+  String get memoryManagementSortImportance;
+
+  /// No description provided for @memoryManagementExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Memories'**
+  String get memoryManagementExport;
+
+  /// No description provided for @memoryManagementPrivateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get memoryManagementPrivateLabel;
+
+  /// No description provided for @memoryManagementCatUserProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'User Profile'**
+  String get memoryManagementCatUserProfile;
+
+  /// No description provided for @memoryManagementCatPreference.
+  ///
+  /// In en, this message translates to:
+  /// **'Preference'**
+  String get memoryManagementCatPreference;
+
+  /// No description provided for @memoryManagementCatFact.
+  ///
+  /// In en, this message translates to:
+  /// **'Fact'**
+  String get memoryManagementCatFact;
+
+  /// No description provided for @memoryManagementCatTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Task'**
+  String get memoryManagementCatTask;
+
+  /// No description provided for @memoryManagementCatDecision.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision'**
+  String get memoryManagementCatDecision;
+
+  /// No description provided for @memoryManagementCatLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get memoryManagementCatLearning;
+
+  /// No description provided for @memoryManagementCatCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get memoryManagementCatCustom;
+
+  /// No description provided for @memoryManagementSourceAiAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Auto'**
+  String get memoryManagementSourceAiAuto;
+
+  /// No description provided for @memoryManagementSourceAiTool.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Tool'**
+  String get memoryManagementSourceAiTool;
+
+  /// No description provided for @memoryManagementSourceManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get memoryManagementSourceManual;
+
+  /// No description provided for @memoryManagementSourceSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get memoryManagementSourceSystem;
+
+  /// No description provided for @assistantEditMemoryCountAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant memories: {count}'**
+  String assistantEditMemoryCountAssistant(int count);
+
+  /// No description provided for @assistantEditMemoryCountGlobal.
+  ///
+  /// In en, this message translates to:
+  /// **'Global memories: {count}'**
+  String assistantEditMemoryCountGlobal(int count);
+
+  /// No description provided for @assistantEditManageAssistantMemoryLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage assistant memories →'**
+  String get assistantEditManageAssistantMemoryLink;
+
+  /// No description provided for @assistantEditManageGlobalMemoryLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage global memories →'**
+  String get assistantEditManageGlobalMemoryLink;
 }
 
 class _AppLocalizationsDelegate

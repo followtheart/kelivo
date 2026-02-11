@@ -1153,6 +1153,7 @@
   "assistantEditPageMemoryTab": "記憶",
   "assistantEditMemorySwitchTitle": "記憶",
   "assistantEditMemorySwitchDescription": "允許助理主動儲存並在對話間引用使用者相關資訊",
+  "assistantEditGlobalMemorySwitchTitle": "繼承全局記憶",
   "assistantEditRecentChatsSwitchTitle": "參考歷史聊天記錄",
   "assistantEditRecentChatsSwitchDescription": "在新對話中引用最近的對話標題以增強上下文",
   "assistantEditManageMemoryTitle": "管理記憶",
@@ -1382,5 +1383,67 @@
   "worldBookInjectionPositionBottomOfChat": "對話底部",
   "worldBookInjectionPositionAtDepth": "指定深度",
   "worldBookInjectionRoleUser": "使用者",
-  "worldBookInjectionRoleAssistant": "助手"
+  "worldBookInjectionRoleAssistant": "助手",
+
+  "memoryManagementTitle": "記憶管理",
+  "memoryManagementGlobalTab": "全局",
+  "memoryManagementSearchHint": "搜尋記憶...",
+  "memoryManagementFilterAll": "全部",
+  "memoryManagementEmpty": "暫無記憶",
+  "memoryManagementCount": "共 {count} 條記憶",
+  "@memoryManagementCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memoryManagementAddButton": "新增記憶",
+  "memoryManagementAddTitle": "新增記憶",
+  "memoryManagementEditTitle": "編輯記憶",
+  "memoryManagementContentHint": "輸入記憶內容",
+  "memoryManagementCategoryLabel": "分類",
+  "memoryManagementImportanceLabel": "重要性",
+  "memoryManagementCancel": "取消",
+  "memoryManagementSave": "儲存",
+  "memoryManagementDeleteTitle": "刪除記憶？",
+  "memoryManagementDeleteConfirm": "刪除",
+  "memoryManagementClearAll": "清空全部記憶",
+  "memoryManagementClearAllTitle": "清空全部記憶？",
+  "memoryManagementClearAllMessage": "這將永久刪除當前分頁下的所有記憶，此操作不可撤銷。",
+  "memoryManagementSortByDate": "按日期排序",
+  "memoryManagementSortByImportance": "按重要性排序",
+  "memoryManagementSortDate": "日期",
+  "memoryManagementSortImportance": "重要性",
+  "memoryManagementExport": "匯出記憶",
+  "memoryManagementPrivateLabel": "私有",
+  "memoryManagementCatUserProfile": "使用者資訊",
+  "memoryManagementCatPreference": "偏好",
+  "memoryManagementCatFact": "事實",
+  "memoryManagementCatTask": "任務",
+  "memoryManagementCatDecision": "決策",
+  "memoryManagementCatLearning": "學習",
+  "memoryManagementCatCustom": "自訂",
+  "memoryManagementSourceAiAuto": "AI 自動",
+  "memoryManagementSourceAiTool": "AI 工具",
+  "memoryManagementSourceManual": "手動",
+  "memoryManagementSourceSystem": "系統",
+  "assistantEditMemoryCountAssistant": "該助手的記憶: {count} 條",
+  "@assistantEditMemoryCountAssistant": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantEditMemoryCountGlobal": "全局記憶: {count} 條",
+  "@assistantEditMemoryCountGlobal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantEditManageAssistantMemoryLink": "管理該助手記憶 →",
+  "assistantEditManageGlobalMemoryLink": "管理全局記憶 →"
 }

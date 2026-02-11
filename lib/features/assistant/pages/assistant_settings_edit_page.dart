@@ -43,6 +43,8 @@ import '../../../utils/brand_assets.dart';
 import '../../../core/models/quick_phrase.dart';
 import '../../../core/providers/quick_phrase_provider.dart';
 import '../../../core/providers/memory_provider.dart';
+import '../../../core/models/memory.dart';
+import '../../memory/pages/memory_management_page.dart';
 import '../../../core/services/chat/chat_service.dart';
 import '../../../core/models/conversation.dart';
 import 'package:uuid/uuid.dart';
@@ -518,6 +520,18 @@ class _MemoryTab extends StatelessWidget {
                   await context.read<AssistantProvider>().updateAssistant(a.copyWith(enableMemory: v));
                 },
               ),
+              if (a.enableMemory) ...[
+                _iosDivider(context),
+                _iosSwitchRow(
+                  context,
+                  icon: Lucide.Globe,
+                  label: l10n.assistantEditGlobalMemorySwitchTitle,
+                  value: a.enableGlobalMemory,
+                  onChanged: (v) async {
+                    await context.read<AssistantProvider>().updateAssistant(a.copyWith(enableGlobalMemory: v));
+                  },
+                ),
+              ],
               _iosDivider(context),
               _iosSwitchRow(
                 context,
@@ -531,6 +545,70 @@ class _MemoryTab extends StatelessWidget {
             ],
           ),
         ),
+
+        // Memory counts & navigation links
+        if (a.enableMemory)
+          sectionCard(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 36, child: Icon(Lucide.Brain, size: 20, color: cs.onSurface.withOpacity(0.9))),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          l10n.assistantEditMemoryCountAssistant(memories.length),
+                          style: TextStyle(fontSize: 14, color: cs.onSurface.withOpacity(0.8)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _iosDivider(context),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 36, child: Icon(Lucide.Globe, size: 20, color: cs.onSurface.withOpacity(0.9))),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          l10n.assistantEditMemoryCountGlobal(mp.memories.where((m) => m.scope == MemoryScope.global).length),
+                          style: TextStyle(fontSize: 14, color: cs.onSurface.withOpacity(0.8)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _iosDivider(context),
+                _iosNavRow(
+                  context,
+                  icon: Lucide.Library,
+                  label: l10n.assistantEditManageAssistantMemoryLink,
+                  onTap: () {
+                    final assistants = ap.assistants;
+                    final tabIndex = assistants.indexWhere((a) => a.id == assistantId);
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => MemoryManagementPage(initialTabIndex: tabIndex + 1),
+                    ));
+                  },
+                ),
+                _iosDivider(context),
+                _iosNavRow(
+                  context,
+                  icon: Lucide.Globe,
+                  label: l10n.assistantEditManageGlobalMemoryLink,
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const MemoryManagementPage(initialTabIndex: 0),
+                    ));
+                  },
+                ),
+              ],
+            ),
+          ),
 
         // Manage memories header with add button
         Padding(

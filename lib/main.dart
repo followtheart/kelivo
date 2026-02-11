@@ -48,6 +48,7 @@ import 'dart:io'
         Platform; // kept for global override usage inside provider
 import 'core/services/android_background.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/memory_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final RouteObserver<ModalRoute<dynamic>> routeObserver =
@@ -84,6 +85,8 @@ Future<void> main() async {
       // logging.Logger.root.onRecord.listen((rec) { ... });
       // Cache current Documents directory to fix sandboxed absolute paths on iOS
       await SandboxPathResolver.init();
+      // Initialize memory SQLite database (migrates from SharedPreferences on first run)
+      await MemoryStore.initialize();
       // Enable edge-to-edge to allow content under system bars (Android)
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       // Start app (Flutter log capture is toggleable and off by default)

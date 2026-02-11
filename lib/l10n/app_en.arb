@@ -1501,6 +1501,7 @@
   "assistantEditPageMemoryTab": "Memory",
   "assistantEditMemorySwitchTitle": "Memory",
   "assistantEditMemorySwitchDescription": "Allow the assistant to create and use memories across chats.",
+  "assistantEditGlobalMemorySwitchTitle": "Inherit Global Memories",
   "assistantEditRecentChatsSwitchTitle": "Recent Chats Reference",
   "assistantEditRecentChatsSwitchDescription": "Include recent conversation titles to help with context.",
   "assistantEditManageMemoryTitle": "Manage Memories",
@@ -1791,5 +1792,67 @@
   "agentSkillImportFromGitHubDesc": "Enter a GitHub repository URL or skill directory URL",
   "agentSkillImportFromGitHubAction": "Import",
 
-  "agentSkillExportTitle": "Export Skill"
+  "agentSkillExportTitle": "Export Skill",
+
+  "memoryManagementTitle": "Memory Management",
+  "memoryManagementGlobalTab": "Global",
+  "memoryManagementSearchHint": "Search memories...",
+  "memoryManagementFilterAll": "All",
+  "memoryManagementEmpty": "No memories yet",
+  "memoryManagementCount": "{count} memories total",
+  "@memoryManagementCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memoryManagementAddButton": "Add Memory",
+  "memoryManagementAddTitle": "Add Memory",
+  "memoryManagementEditTitle": "Edit Memory",
+  "memoryManagementContentHint": "Enter memory content",
+  "memoryManagementCategoryLabel": "Category",
+  "memoryManagementImportanceLabel": "Importance",
+  "memoryManagementCancel": "Cancel",
+  "memoryManagementSave": "Save",
+  "memoryManagementDeleteTitle": "Delete Memory?",
+  "memoryManagementDeleteConfirm": "Delete",
+  "memoryManagementClearAll": "Clear All Memories",
+  "memoryManagementClearAllTitle": "Clear All Memories?",
+  "memoryManagementClearAllMessage": "This will permanently delete all memories in this tab. This action cannot be undone.",
+  "memoryManagementSortByDate": "Sort by date",
+  "memoryManagementSortByImportance": "Sort by importance",
+  "memoryManagementSortDate": "Date",
+  "memoryManagementSortImportance": "Importance",
+  "memoryManagementExport": "Export Memories",
+  "memoryManagementPrivateLabel": "Private",
+  "memoryManagementCatUserProfile": "User Profile",
+  "memoryManagementCatPreference": "Preference",
+  "memoryManagementCatFact": "Fact",
+  "memoryManagementCatTask": "Task",
+  "memoryManagementCatDecision": "Decision",
+  "memoryManagementCatLearning": "Learning",
+  "memoryManagementCatCustom": "Custom",
+  "memoryManagementSourceAiAuto": "AI Auto",
+  "memoryManagementSourceAiTool": "AI Tool",
+  "memoryManagementSourceManual": "Manual",
+  "memoryManagementSourceSystem": "System",
+  "assistantEditMemoryCountAssistant": "Assistant memories: {count}",
+  "@assistantEditMemoryCountAssistant": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantEditMemoryCountGlobal": "Global memories: {count}",
+  "@assistantEditMemoryCountGlobal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantEditManageAssistantMemoryLink": "Manage assistant memories →",
+  "assistantEditManageGlobalMemoryLink": "Manage global memories →"
 }
