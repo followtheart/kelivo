@@ -3655,6 +3655,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assistantEditRecentChatsSwitchTitle => 'Recent Chats Reference';
 
   @override
+  String get assistantEditToolsSwitchTitle => 'Local Tools';
+
+  @override
   String get assistantEditRecentChatsSwitchDescription =>
       'Include recent conversation titles to help with context.';
 

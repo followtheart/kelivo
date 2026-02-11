@@ -1503,6 +1503,7 @@
   "assistantEditMemorySwitchDescription": "Allow the assistant to create and use memories across chats.",
   "assistantEditGlobalMemorySwitchTitle": "Inherit Global Memories",
   "assistantEditRecentChatsSwitchTitle": "Recent Chats Reference",
+  "assistantEditToolsSwitchTitle": "Local Tools",
   "assistantEditRecentChatsSwitchDescription": "Include recent conversation titles to help with context.",
   "assistantEditManageMemoryTitle": "Manage Memories",
   "assistantEditAddMemoryButton": "Add Memory",

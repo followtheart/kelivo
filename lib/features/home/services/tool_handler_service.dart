@@ -159,8 +159,8 @@ class ToolHandlerService {
     );
     toolDefs.addAll(mcpTools);
 
-    // Local tools (from FunctionRouter)
-    if (supportsTools) {
+    // Local tools (from FunctionRouter) — gated by per-assistant switch
+    if (supportsTools && (assistant?.enableTools ?? true)) {
       try {
         final router = contextProvider.read<FunctionRouter>();
         final providerCfg = settings.getProviderConfig(providerKey);
@@ -219,10 +219,19 @@ class ToolHandlerService {
       toolDefs.add(_buildPlanToolDefinition());
     }
 
+    // ── Debug: log tool breakdown ──
+    {
+      final names = toolDefs.map((t) {
+        final fn = t['function'] as Map<String, dynamic>?;
+        return fn?['name'] ?? '?';
+      }).toList();
+      debugPrint('ToolBreakdown: ${toolDefs.length} tools = $names');
+    }
+
     return toolDefs;
   }
 
-  /// Build memory tool definitions (create/edit/delete).
+  /// Build memory tool definitions (create/edit/delete/search/get).
   List<Map<String, dynamic>> _buildMemoryToolDefinitions() {
     return [
       {
@@ -233,24 +242,20 @@ class ToolHandlerService {
           'parameters': {
             'type': 'object',
             'properties': {
-              'content': {'type': 'string', 'description': 'The content of the memory record'},
+              'content': {'type': 'string', 'description': 'Memory content'},
               'category': {
                 'type': 'string',
                 'enum': ['user_profile', 'preference', 'fact', 'task', 'decision', 'learning', 'custom'],
-                'description': 'Memory category. Default: custom'
               },
               'importance': {
                 'type': 'integer',
-                'description': 'Importance level 1-5. 5=critical user info, 1=trivial. Default: 3'
+                'description': '1-5, default 3',
+                'minimum': 1, 'maximum': 5
               },
-              'concepts': {
-                'type': 'string',
-                'description': 'Comma-separated tags, e.g. "work,project,deadline"'
-              },
+              'concepts': {'type': 'string', 'description': 'Comma-separated tags'},
               'scope': {
                 'type': 'string',
                 'enum': ['global', 'assistant'],
-                'description': 'Scope: global (shared across all assistants) or assistant (this assistant only). Default: assistant'
               },
             },
             'required': ['content']
@@ -265,21 +270,14 @@ class ToolHandlerService {
           'parameters': {
             'type': 'object',
             'properties': {
-              'id': {'type': 'integer', 'description': 'The id of the memory record'},
-              'content': {'type': 'string', 'description': 'New content for the memory record'},
+              'id': {'type': 'integer', 'description': 'Memory ID'},
+              'content': {'type': 'string', 'description': 'New content'},
               'category': {
                 'type': 'string',
                 'enum': ['user_profile', 'preference', 'fact', 'task', 'decision', 'learning', 'custom'],
-                'description': 'Updated category'
               },
-              'importance': {
-                'type': 'integer',
-                'description': 'Updated importance level 1-5'
-              },
-              'concepts': {
-                'type': 'string',
-                'description': 'Updated comma-separated tags'
-              },
+              'importance': {'type': 'integer', 'minimum': 1, 'maximum': 5},
+              'concepts': {'type': 'string', 'description': 'Updated tags'},
             },
             'required': ['id']
           }
@@ -289,11 +287,11 @@ class ToolHandlerService {
         'type': 'function',
         'function': {
           'name': 'delete_memory',
-          'description': 'Delete a memory record.',
+          'description': 'Delete a memory record by ID.',
           'parameters': {
             'type': 'object',
             'properties': {
-              'id': {'type': 'integer', 'description': 'The id of the memory record'}
+              'id': {'type': 'integer'}
             },
             'required': ['id']
           }
@@ -303,7 +301,7 @@ class ToolHandlerService {
         'type': 'function',
         'function': {
           'name': 'search_memory',
-          'description': 'Search memories by keyword. Returns a compact summary list (id + category + truncated content). Use this to find relevant memories before using get_memory for full content.',
+          'description': 'Search memories. Returns compact list (id + category + snippet). Use get_memory for full content.',
           'parameters': {
             'type': 'object',
             'properties': {
@@ -311,17 +309,12 @@ class ToolHandlerService {
               'category': {
                 'type': 'string',
                 'enum': ['user_profile', 'preference', 'fact', 'task', 'decision', 'learning', 'custom'],
-                'description': 'Filter by category'
               },
               'scope': {
                 'type': 'string',
                 'enum': ['global', 'assistant', 'all'],
-                'description': 'Search scope. Default: all'
               },
-              'limit': {
-                'type': 'integer',
-                'description': 'Max results to return. Default: 10'
-              },
+              'limit': {'type': 'integer', 'description': 'Max results, default 10'},
             },
             'required': ['query']
           }
@@ -331,14 +324,14 @@ class ToolHandlerService {
         'type': 'function',
         'function': {
           'name': 'get_memory',
-          'description': 'Batch-get full memory content by ID list. Use after search_memory to retrieve details for specific memories.',
+          'description': 'Get full memory content by IDs. Use after search_memory.',
           'parameters': {
             'type': 'object',
             'properties': {
               'ids': {
                 'type': 'array',
                 'items': {'type': 'integer'},
-                'description': 'List of memory IDs to retrieve'
+                'description': 'Memory IDs'
               },
             },
             'required': ['ids']

@@ -3519,6 +3519,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get assistantEditRecentChatsSwitchTitle => '参考历史聊天记录';
 
   @override
+  String get assistantEditToolsSwitchTitle => '本地工具';
+
+  @override
   String get assistantEditRecentChatsSwitchDescription =>
       '在新对话中引用最近的对话标题以增强上下文';
 
@@ -7797,6 +7800,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get assistantEditRecentChatsSwitchTitle => '参考历史聊天记录';
 
   @override
+  String get assistantEditToolsSwitchTitle => '本地工具';
+
+  @override
   String get assistantEditRecentChatsSwitchDescription =>
       '在新对话中引用最近的对话标题以增强上下文';
 
@@ -11937,6 +11943,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get assistantEditRecentChatsSwitchTitle => '參考歷史聊天記錄';
+
+  @override
+  String get assistantEditToolsSwitchTitle => '本地工具';
 
   @override
   String get assistantEditRecentChatsSwitchDescription =>

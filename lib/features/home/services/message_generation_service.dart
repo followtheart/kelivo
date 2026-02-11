@@ -181,6 +181,28 @@ class MessageGenerationService {
         ? generationController.buildToolCallHandler(settings, assistant)
         : null;
 
+    // ── Debug: log total input size ──
+    {
+      int totalChars = 0;
+      int systemChars = 0;
+      int historyChars = 0;
+      for (final m in apiMessages) {
+        final c = (m['content'] ?? '').toString().length;
+        totalChars += c;
+        if (m['role'] == 'system') {
+          systemChars += c;
+        } else {
+          historyChars += c;
+        }
+      }
+      final toolChars = toolDefs.toString().length;
+      debugPrint('PrepareGeneration: '
+          'system=${systemChars} chars (~${(systemChars / 4).round()} tok), '
+          'history=${historyChars} chars (~${(historyChars / 4).round()} tok), '
+          'tools=${toolChars} chars (~${(toolChars / 4).round()} tok), '
+          'msgs=${apiMessages.length}, toolDefs=${toolDefs.length}');
+    }
+
     return PreparedGeneration(
       apiMessages: apiMessages,
       toolDefs: toolDefs,

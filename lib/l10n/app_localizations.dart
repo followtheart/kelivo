@@ -6848,6 +6848,12 @@ abstract class AppLocalizations {
   /// **'Recent Chats Reference'**
   String get assistantEditRecentChatsSwitchTitle;
 
+  /// No description provided for @assistantEditToolsSwitchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Tools'**
+  String get assistantEditToolsSwitchTitle;
+
   /// No description provided for @assistantEditRecentChatsSwitchDescription.
   ///
   /// In en, this message translates to:

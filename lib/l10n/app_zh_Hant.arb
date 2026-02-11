@@ -1155,6 +1155,7 @@
   "assistantEditMemorySwitchDescription": "允許助理主動儲存並在對話間引用使用者相關資訊",
   "assistantEditGlobalMemorySwitchTitle": "繼承全局記憶",
   "assistantEditRecentChatsSwitchTitle": "參考歷史聊天記錄",
+  "assistantEditToolsSwitchTitle": "本地工具",
   "assistantEditRecentChatsSwitchDescription": "在新對話中引用最近的對話標題以增強上下文",
   "assistantEditManageMemoryTitle": "管理記憶",
   "assistantEditAddMemoryButton": "新增記憶",

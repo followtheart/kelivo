@@ -418,6 +418,8 @@ class MessageBuilderService {
         assistant.systemPrompt,
         vars,
       );
+      debugPrint('SystemPrompt[userPrompt]: ${sys.length} chars '
+          '(~${(sys.length / 4).round()} tok)');
       apiMessages.insert(0, {'role': 'system', 'content': sys});
     }
   }
@@ -481,39 +483,28 @@ class MessageBuilderService {
         buf.writeln('<stats total="$totalCount" injected="${injected.length}" />');
         buf.writeln('</memory_context>');
 
-        // ── System Prompt: Memory Tool guidance ──
+        // ── System Prompt: Memory Tool guidance (compressed) ──
+        // NOTE: Tool names, parameters, and enum values are already
+        // described in the tool-definition JSON sent alongside the
+        // request — no need to repeat them in the system prompt.
+        final remaining = totalCount - injected.length;
         buf.writeln('''
 ## Memory System
-你拥有持久记忆能力。上方 <memory_context> 已注入最重要的记忆。
-其余 ${totalCount - injected.length} 条低重要性记忆可通过搜索获取。
-
-### 记忆工具
-- `create_memory(content, category?, importance?, concepts?, scope?)`: 创建新记忆
-- `edit_memory(id, content?, category?, importance?, concepts?)`: 更新记忆
-- `delete_memory(id)`: 删除记忆
-- `search_memory(query, category?, scope?, limit?)`: 搜索记忆（返回摘要列表）
-- `get_memory(ids)`: 批量获取完整记忆内容
-
-### 参数说明
-- **category**: user_profile | preference | fact | task | decision | learning | custom
-- **importance**: 1-5 (5=核心用户信息, 3=普通, 1=临时)
-- **concepts**: 逗号分隔的标签，如 "work,project"
-- **scope**: global (跨助手共享) | assistant (仅当前助手，默认)
-
+你拥有持久记忆能力。上方 <memory_context> 已注入 ${injected.length} 条高重要性记忆（共 $totalCount 条）。
+${remaining > 0 ? '其余 $remaining 条可用 search_memory 按需检索。' : ''}
 ### 使用原则
-1. **主动记录**: 在对话中主动识别并记录用户信息、偏好、计划等，无需用户要求。
-2. **先搜后记**: 创建新记忆前**必须**先用 search_memory 搜索相关关键词，检查是否已存在类似记忆。如果搜索到相似内容，使用 edit_memory 更新已有记录而不是创建新的。
-3. **合并更新**: 相似或相关的记忆应合并为一条记录。当发现多条含义重叠的记忆时，保留最完整的一条并 edit_memory 补充信息，delete_memory 删除冗余条目。
-4. **按需搜索**: 当需要回忆用户历史信息时，使用 search_memory 查找，再用 get_memory 获取详情。
-5. **分类标注**: 合理使用 category 和 concepts 便于检索。
-6. **重要性评估**: 核心用户信息 importance=5，临时信息 importance=1-2。低重要性记忆会随时间自动衰减并最终被清理。
-7. **全局 vs 助手**: 用户通用信息（姓名、爱好等）用 scope=global。
-8. **静默操作**: 无需告知用户你在操作记忆，除非用户主动询问。
-9. **隐私保护**: 不要记录敏感信息（民族、宗教、政治、犯罪记录等）。
-10. **时间标注**: 记忆包含日期信息时使用绝对时间格式，当前时间: ${DateTime.now().toIso8601String()}。
-11. **清理过时**: 发现对话中提到的事实与已有记忆矛盾时，及时 edit_memory 更新或 delete_memory 清除过时信息。可以在和用户闲聊的时候暗示你能记住东西。
+1. 主动识别用户信息/偏好/计划并记录，无需用户要求，静默操作。
+2. 创建前先 search_memory 查重；有相似结果则 edit_memory 合并，勿重复创建。
+3. 核心信息 importance=5；临时信息 1-2（低重要性自动衰减）。通用信息用 scope=global。
+4. 不记录敏感信息（民族、宗教、政治、犯罪记录等）。
+5. 发现与已有记忆矛盾的事实时，及时更新或删除过时记忆。
+6. 当前时间: ${DateTime.now().toIso8601String()}。
 ''');
-        _appendToSystemMessage(apiMessages, buf.toString());
+        final memoryPrompt = buf.toString();
+        debugPrint('MemoryInjection: ${memoryPrompt.length} chars '
+            '(~${(memoryPrompt.length / 4).round()} tokens), '
+            '${injected.length}/$totalCount memories injected');
+        _appendToSystemMessage(apiMessages, memoryPrompt, 'memory');
       }
       if (assistant?.enableRecentChatsReference == true) {
         final chats = chatService.getAllConversations();
@@ -544,7 +535,7 @@ class MessageBuilderService {
             sb.writeln('</conversation>');
           }
           sb.writeln('</recent_chats>');
-          _appendToSystemMessage(apiMessages, sb.toString());
+          _appendToSystemMessage(apiMessages, sb.toString(), 'recentChats');
         }
       }
     } catch (_) {}
@@ -558,7 +549,7 @@ class MessageBuilderService {
   ) {
     if (settings.searchEnabled && !hasBuiltInSearch) {
       final prompt = SearchToolService.getSystemPrompt();
-      _appendToSystemMessage(apiMessages, prompt);
+      _appendToSystemMessage(apiMessages, prompt, 'search');
     }
   }
 
@@ -588,7 +579,7 @@ class MessageBuilderService {
           .toList(growable: false);
       if (prompts.isNotEmpty) {
         final lp = prompts.join('\n\n');
-        _appendToSystemMessage(apiMessages, lp);
+        _appendToSystemMessage(apiMessages, lp, 'instructions');
       }
     } catch (_) {}
   }
@@ -660,7 +651,7 @@ class MessageBuilderService {
         buffer.writeln('</available_skills>');
       }
 
-      _appendToSystemMessage(apiMessages, buffer.toString());
+      _appendToSystemMessage(apiMessages, buffer.toString(), 'agentSkills');
     } catch (_) {}
   }
 
@@ -928,8 +919,11 @@ class MessageBuilderService {
   /// Helper to append content to the system message (or create one if missing).
   void _appendToSystemMessage(
     List<Map<String, dynamic>> apiMessages,
-    String content,
-  ) {
+    String content, [
+    String? label,
+  ]) {
+    debugPrint('SystemPrompt[${label ?? "?"}]: +${content.length} chars '
+        '(~${(content.length / 4).round()} tok)');
     if (apiMessages.isNotEmpty && apiMessages.first['role'] == 'system') {
       apiMessages[0]['content'] =
           ((apiMessages[0]['content'] ?? '') as String) + '\n\n' + content;

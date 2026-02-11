@@ -29,6 +29,7 @@ class Assistant {
   final bool enableMemory; // assistant memory feature switch
   final bool enableGlobalMemory; // inherit global memories into this assistant
   final bool enableRecentChatsReference; // include recent chat titles in prompt
+  final bool enableTools; // allow local tool/function calling for this assistant
   // Preset conversation messages (ordered)
   final List<PresetMessage> presetMessages;
   // Regex replacement rules
@@ -60,6 +61,7 @@ class Assistant {
     this.enableMemory = false,
     this.enableGlobalMemory = true,
     this.enableRecentChatsReference = false,
+    this.enableTools = true,
     this.presetMessages = const <PresetMessage>[],
     this.regexRules = const <AssistantRegex>[],
     this.planMode = PlanMode.never,
@@ -89,6 +91,7 @@ class Assistant {
     bool? enableMemory,
     bool? enableGlobalMemory,
     bool? enableRecentChatsReference,
+    bool? enableTools,
     List<PresetMessage>? presetMessages,
     List<AssistantRegex>? regexRules,
     PlanMode? planMode,
@@ -125,6 +128,7 @@ class Assistant {
       enableGlobalMemory: enableGlobalMemory ?? this.enableGlobalMemory,
       enableRecentChatsReference:
           enableRecentChatsReference ?? this.enableRecentChatsReference,
+      enableTools: enableTools ?? this.enableTools,
       presetMessages: presetMessages ?? this.presetMessages,
       regexRules: regexRules ?? this.regexRules,
       planMode: planMode ?? this.planMode,
@@ -155,6 +159,7 @@ class Assistant {
         'enableMemory': enableMemory,
         'enableGlobalMemory': enableGlobalMemory,
         'enableRecentChatsReference': enableRecentChatsReference,
+        'enableTools': enableTools,
         'presetMessages': PresetMessage.encodeList(presetMessages),
         'regexRules': regexRules.map((e) => e.toJson()).toList(),
         'planMode': planMode.name,
@@ -209,6 +214,7 @@ class Assistant {
         enableGlobalMemory: json['enableGlobalMemory'] as bool? ?? true,
         enableRecentChatsReference:
             json['enableRecentChatsReference'] as bool? ?? false,
+        enableTools: json['enableTools'] as bool? ?? true,
         presetMessages: (() {
           try {
             return PresetMessage.decodeList(json['presetMessages']);

@@ -542,6 +542,16 @@ class _MemoryTab extends StatelessWidget {
                   await context.read<AssistantProvider>().updateAssistant(a.copyWith(enableRecentChatsReference: v));
                 },
               ),
+              _iosDivider(context),
+              _iosSwitchRow(
+                context,
+                icon: Lucide.Wrench,
+                label: l10n.assistantEditToolsSwitchTitle,
+                value: a.enableTools,
+                onChanged: (v) async {
+                  await context.read<AssistantProvider>().updateAssistant(a.copyWith(enableTools: v));
+                },
+              ),
             ],
           ),
         ),
