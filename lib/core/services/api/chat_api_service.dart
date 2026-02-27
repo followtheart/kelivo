@@ -1701,10 +1701,29 @@ class ChatApiService {
     }
     request.body = jsonEncode(body);
 
-    final response = await client.send(request);
+    var response = await client.send(request);
     if (response.statusCode < 200 || response.statusCode >= 300) {
       final errorBody = await response.stream.bytesToString();
-      throw HttpException('HTTP ${response.statusCode}: $errorBody');
+      // OpenRouter 404: model has no provider that supports tool use.
+      // Retry without tools so the user still gets a response.
+      final bool isOpenRouterToolError = response.statusCode == 404
+          && host.contains('openrouter')
+          && errorBody.contains('tool use')
+          && (body as Map<String, dynamic>).containsKey('tools');
+      if (isOpenRouterToolError) {
+        (body as Map<String, dynamic>).remove('tools');
+        (body as Map<String, dynamic>).remove('tool_choice');
+        final retryRequest = http.Request('POST', url);
+        retryRequest.headers.addAll(request.headers);
+        retryRequest.body = jsonEncode(body);
+        response = await client.send(retryRequest);
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          final retryErrorBody = await response.stream.bytesToString();
+          throw HttpException('HTTP ${response.statusCode}: $retryErrorBody');
+        }
+      } else {
+        throw HttpException('HTTP ${response.statusCode}: $errorBody');
+      }
     }
 
     // Non-streaming path: parse one-shot JSON and optionally follow tool calls.
