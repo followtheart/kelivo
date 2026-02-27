@@ -3658,6 +3658,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assistantEditToolsSwitchTitle => 'Local Tools';
 
   @override
+  String assistantEditToolsEnabledCount(int enabled, int total) {
+    return '$enabled / $total tools enabled';
+  }
+
+  @override
+  String get assistantEditToolsEnableAll => 'Enable All';
+
+  @override
+  String get assistantEditToolsDisableAll => 'Disable All';
+
+  @override
   String get assistantEditRecentChatsSwitchDescription =>
       'Include recent conversation titles to help with context.';
 

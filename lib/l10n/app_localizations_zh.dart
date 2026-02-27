@@ -3522,6 +3522,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get assistantEditToolsSwitchTitle => '本地工具';
 
   @override
+  String assistantEditToolsEnabledCount(int enabled, int total) {
+    return '已启用 $enabled / $total 个工具';
+  }
+
+  @override
+  String get assistantEditToolsEnableAll => '全部启用';
+
+  @override
+  String get assistantEditToolsDisableAll => '全部禁用';
+
+  @override
   String get assistantEditRecentChatsSwitchDescription =>
       '在新对话中引用最近的对话标题以增强上下文';
 
@@ -7803,6 +7814,17 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get assistantEditToolsSwitchTitle => '本地工具';
 
   @override
+  String assistantEditToolsEnabledCount(int enabled, int total) {
+    return '已启用 $enabled / $total 个工具';
+  }
+
+  @override
+  String get assistantEditToolsEnableAll => '全部启用';
+
+  @override
+  String get assistantEditToolsDisableAll => '全部禁用';
+
+  @override
   String get assistantEditRecentChatsSwitchDescription =>
       '在新对话中引用最近的对话标题以增强上下文';
 
@@ -11946,6 +11968,17 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get assistantEditToolsSwitchTitle => '本地工具';
+
+  @override
+  String assistantEditToolsEnabledCount(int enabled, int total) {
+    return '已啟用 $enabled / $total 個工具';
+  }
+
+  @override
+  String get assistantEditToolsEnableAll => '全部啟用';
+
+  @override
+  String get assistantEditToolsDisableAll => '全部停用';
 
   @override
   String get assistantEditRecentChatsSwitchDescription =>

@@ -24,6 +24,12 @@ class FunctionRouter extends ChangeNotifier {
   /// 本地工具配置文件路径
   String? _localToolsConfigPath;
 
+  /// 被禁用的本地工具名称集合
+  ///
+  /// 存储用户手动禁用的工具名称。被禁用的工具不会出现在
+  /// API 请求的 tools 列表中，也不会被执行。
+  final Set<String> _disabledTools = {};
+
   FunctionRouter() {
     registry = ToolRegistry();
     engine = ExecutionEngine(registry: registry);
@@ -120,6 +126,14 @@ class FunctionRouter extends ChangeNotifier {
         toolConfigs = (data['tools'] as List?)
                 ?.cast<Map<String, dynamic>>() ??
             [];
+        // 读取禁用工具列表
+        final disabled = data['disabledTools'];
+        if (disabled is List) {
+          _disabledTools
+            ..clear()
+            ..addAll(disabled.cast<String>());
+          debugPrint('[FunctionRouter] Loaded ${_disabledTools.length} disabled tools');
+        }
       } else if (data is List) {
         // 简化格式: 直接是工具列表 [...]
         toolConfigs = data.cast<Map<String, dynamic>>();
@@ -185,6 +199,8 @@ class FunctionRouter extends ChangeNotifier {
             'Similar to MCP tool protocol. '
             'See documentation for available executor types.',
         'tools': tools,
+        if (_disabledTools.isNotEmpty)
+          'disabledTools': _disabledTools.toList()..sort(),
       };
 
       final file = File(path);
@@ -282,15 +298,22 @@ class FunctionRouter extends ChangeNotifier {
   /// 获取本地工具定义列表（OpenAI function calling 格式）
   ///
   /// 用于注入到 API 请求的 tools 参数中。
+  /// 被禁用的工具 ([_disabledTools]) 不会出现在列表中。
   List<Map<String, dynamic>> buildLocalToolDefinitions({
     required String providerKey,
     required ProviderKind providerKind,
   }) {
+    // 计算启用的工具名称集合 (全部本地工具 - 禁用集合)
+    final allLocalNames = registry.getNamesBySource(ToolSource.local).toSet();
+    final enabledNames = allLocalNames.difference(_disabledTools);
+
     final tools = registry.getAvailableTools(
       sources: {ToolSource.local},
+      enabledNames: enabledNames.isEmpty ? null : enabledNames,
     );
 
-    if (tools.isEmpty) return [];
+    // 当全部工具都被禁用时，返回空列表
+    if (enabledNames.isEmpty || tools.isEmpty) return [];
 
     return tools.map((t) {
       final sanitized = _sanitizeParametersForProvider(
@@ -333,6 +356,9 @@ class FunctionRouter extends ChangeNotifier {
       // 仅处理本地工具
       if (def.source != ToolSource.local) return null;
 
+      // 检查工具是否被禁用
+      if (_disabledTools.contains(name)) return null;
+
       final result = await engine.execute(name, args, context);
       return result.toResponseText();
     };
@@ -369,9 +395,76 @@ class FunctionRouter extends ChangeNotifier {
   /// 检查工具是否已注册
   bool isToolRegistered(String name) => registry.hasExecutor(name);
 
-  /// 本地工具是否启用
-  bool get hasLocalTools =>
-      registry.getNamesBySource(ToolSource.local).isNotEmpty;
+  /// 是否有可用的本地工具（排除被禁用的）
+  bool get hasLocalTools {
+    final all = registry.getNamesBySource(ToolSource.local);
+    return all.any((n) => !_disabledTools.contains(n));
+  }
+
+  // ============================================================================
+  // 本地工具启用/禁用管理
+  // ============================================================================
+
+  /// 设置本地工具的启用/禁用状态
+  ///
+  /// [name] 工具名称
+  /// [enabled] true=启用, false=禁用
+  Future<void> setLocalToolEnabled(String name, bool enabled) async {
+    final changed = enabled ? _disabledTools.remove(name) : _disabledTools.add(name);
+    if (changed) {
+      await _persistDisabledTools();
+      notifyListeners();
+    }
+  }
+
+  /// 批量设置本地工具的启用/禁用状态
+  ///
+  /// [names] 工具名称集合
+  /// [enabled] true=全部启用, false=全部禁用
+  Future<void> setLocalToolsEnabled(Iterable<String> names, bool enabled) async {
+    bool changed = false;
+    for (final name in names) {
+      if (enabled) {
+        changed = _disabledTools.remove(name) || changed;
+      } else {
+        changed = _disabledTools.add(name) || changed;
+      }
+    }
+    if (changed) {
+      await _persistDisabledTools();
+      notifyListeners();
+    }
+  }
+
+  /// 查询本地工具是否启用
+  bool isLocalToolEnabled(String name) => !_disabledTools.contains(name);
+
+  /// 获取所有本地工具的启用状态
+  ///
+  /// 返回 Map<工具名, 是否启用>
+  Map<String, bool> getAllLocalToolStates() {
+    final all = registry.getNamesBySource(ToolSource.local);
+    return {
+      for (final name in all) name: !_disabledTools.contains(name),
+    };
+  }
+
+  /// 获取被禁用的工具名称集合（只读）
+  Set<String> get disabledToolNames => Set.unmodifiable(_disabledTools);
+
+  /// 获取启用的本地工具数量
+  int get enabledLocalToolCount {
+    final all = registry.getNamesBySource(ToolSource.local);
+    return all.where((n) => !_disabledTools.contains(n)).length;
+  }
+
+  /// 获取本地工具总数
+  int get totalLocalToolCount => registry.getNamesBySource(ToolSource.local).length;
+
+  /// 持久化禁用工具列表到配置文件
+  Future<void> _persistDisabledTools() async {
+    await saveToJsonFile();
+  }
 
   // ============================================================================
   // 内部工具

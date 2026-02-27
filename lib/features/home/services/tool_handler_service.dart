@@ -189,7 +189,8 @@ class ToolHandlerService {
     }
 
     // Agent Skill tools (activate, read resource, run script)
-    if (supportsTools) {
+    // Gated by enableTools so disabling local tools also suppresses skill tools
+    if (supportsTools && (assistant?.enableTools ?? true)) {
       try {
         final skillProvider = contextProvider.read<AgentSkillProvider>();
         final skillTools = AgentSkillToolService.buildToolDefinitions(skillProvider);
@@ -447,7 +448,7 @@ class ToolHandlerService {
       // Local tools (FunctionRouter)
       try {
         final router = contextProvider.read<FunctionRouter>();
-        if (router.isToolRegistered(name)) {
+        if (router.isToolRegistered(name) && router.isLocalToolEnabled(name)) {
           final result = await router.callTool(name, args);
           return result.toResponseText();
         }

@@ -52,6 +52,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../shared/widgets/ios_switch.dart';
 import '../../../core/services/haptics.dart';
 import '../../../shared/widgets/ios_tactile.dart';
+import '../../../core/services/function_calling/function_router.dart';
 
 const int _contextMessageMin = 1;
 const int _contextMessageMax = 256;
@@ -555,6 +556,10 @@ class _MemoryTab extends StatelessWidget {
             ],
           ),
         ),
+
+        // Local tool toggles (individual on/off)
+        if (a.enableTools)
+          _LocalToolTogglesSection(sectionCard: sectionCard),
 
         // Memory counts & navigation links
         if (a.enableMemory)
@@ -7505,6 +7510,168 @@ class _AgentSkillsTab extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+// =============================================================================
+// _LocalToolTogglesSection — 本地工具逐个开关列表
+// =============================================================================
+
+class _LocalToolTogglesSection extends StatelessWidget {
+  const _LocalToolTogglesSection({required this.sectionCard});
+
+  /// Parent's sectionCard builder for visual consistency.
+  final Widget Function({required Widget child}) sectionCard;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final router = context.watch<FunctionRouter>();
+
+    final toolStates = router.getAllLocalToolStates(); // {name: enabled}
+    if (toolStates.isEmpty) return const SizedBox.shrink();
+
+    final names = toolStates.keys.toList()..sort();
+    final enabledCount = router.enabledLocalToolCount;
+    final totalCount = router.totalLocalToolCount;
+    final allEnabled = enabledCount == totalCount;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header row: title + enable/disable all button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.assistantEditToolsEnabledCount(enabledCount, totalCount),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: cs.onSurface.withOpacity(0.55),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  if (allEnabled) {
+                    await router.setLocalToolsEnabled(names, false);
+                  } else {
+                    await router.setLocalToolsEnabled(names, true);
+                  }
+                },
+                child: Text(
+                  allEnabled
+                      ? l10n.assistantEditToolsDisableAll
+                      : l10n.assistantEditToolsEnableAll,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Tool list
+        sectionCard(
+          child: Column(
+            children: [
+              for (int i = 0; i < names.length; i++) ...[
+                if (i > 0) _iosDivider(context),
+                _LocalToolRow(
+                  toolName: names[i],
+                  description: router.registry.getDefinition(names[i])?.description ?? '',
+                  enabled: toolStates[names[i]]!,
+                  onChanged: (v) => router.setLocalToolEnabled(names[i], v),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LocalToolRow extends StatelessWidget {
+  const _LocalToolRow({
+    required this.toolName,
+    required this.description,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final String toolName;
+  final String description;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return _TactileRow(
+      onTap: () => onChanged(!enabled),
+      builder: (pressed) {
+        final baseColor = cs.onSurface.withOpacity(0.9);
+        return _AnimatedPressColor(
+          pressed: pressed,
+          base: baseColor,
+          builder: (c) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 36,
+                    child: Icon(
+                      Lucide.Terminal,
+                      size: 18,
+                      color: enabled ? c : c.withOpacity(0.4),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          toolName,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: enabled ? c : c.withOpacity(0.5),
+                          ),
+                        ),
+                        if (description.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Text(
+                              description,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: cs.onSurface.withOpacity(0.45),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IosSwitch(value: enabled, onChanged: onChanged),
+                ],
               ),
             );
           },

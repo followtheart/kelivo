@@ -6854,6 +6854,24 @@ abstract class AppLocalizations {
   /// **'Local Tools'**
   String get assistantEditToolsSwitchTitle;
 
+  /// No description provided for @assistantEditToolsEnabledCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{enabled} / {total} tools enabled'**
+  String assistantEditToolsEnabledCount(int enabled, int total);
+
+  /// No description provided for @assistantEditToolsEnableAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable All'**
+  String get assistantEditToolsEnableAll;
+
+  /// No description provided for @assistantEditToolsDisableAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable All'**
+  String get assistantEditToolsDisableAll;
+
   /// No description provided for @assistantEditRecentChatsSwitchDescription.
   ///
   /// In en, this message translates to:
